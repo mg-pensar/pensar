@@ -1,0 +1,18 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build-tests",
+            "type": "shell",
+            "command": "mkdir -p build && ICU_HEADER=$(find /Users/mg/.conan2 -path '*include/unicode/ucsdet.h' 2>/dev/null | head -n 1) && ICU_INCLUDE_DIR=$(dirname \"$(dirname \"$ICU_HEADER\")\") && ICU_LIB_DIR=${ICU_INCLUDE_DIR%/include}/lib && clang++ -std=c++23 -I${workspaceFolder}/cpp/src -I${workspaceFolder}/cpp/src/test -I${workspaceFolder}/unit_test/src -I\"$ICU_INCLUDE_DIR\" -L\"$ICU_LIB_DIR\" ${workspaceFolder}/cpp/src/test/*.cpp -licuuc -licui18n -licudata -licuio -g -O0 -o ${workspaceFolder}/build/tests",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": ["$gcc"],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}

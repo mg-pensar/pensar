@@ -32,3 +32,46 @@
 *.out
 *.app
 
+# macOS
+.DS_Store
+*.dSYM/
+
+# Build directories
+build/
+cmake-build-*/
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+CMakeUserPresets.json
+CMakePresets.json
+compile_commands.json
+
+# Conan
+conan*
+
+# Visual Studio / VS Code
+.vs/
+.idea/
+
+# Android
+**/build/
+**/.cxx/
+**/.gradle/
+**/obj/
+*.apk
+*.aab
+
+# iOS / Xcode
+DerivedData/
+*.xcworkspace/
+*.xcodeproj/
+*.xcarchive/
+*.ipa
+
+# Logs / temp
+*.log
+*.tmp
+
