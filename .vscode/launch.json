@@ -5,7 +5,7 @@
             "name": "Debug tests",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/tests",
+            "program": "${workspaceFolder}/build/pensar_tests",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
