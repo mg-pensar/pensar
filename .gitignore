@@ -75,3 +75,5 @@ DerivedData/
 *.log
 *.tmp
 
+# External dependencies.
+external/
