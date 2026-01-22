@@ -8,10 +8,13 @@
 #include "../io_util.hpp"
 #include "../file.hpp"
 #include "../test/dummy.hpp"
+#include "../double64.hpp"
 
 #include <memory>
 #include <fstream>
 #include <filesystem>
+#include <cstdint>
+#include <cmath>
 
 namespace pensar_digital
 {
@@ -19,6 +22,22 @@ namespace pensar_digital
     using namespace pensar_digital::unit_test;
     namespace cpplib
     {
+        struct AssignMoveBlob
+        {
+            struct DataType
+            {
+                Double64 b;
+                int64_t a;
+            };
+
+            DataType mdata{};
+
+            DataType* data() noexcept { return &mdata; }
+            const DataType* data() const noexcept { return &mdata; }
+        };
+
+        static_assert(StdLayoutTriviallyCopyableNoPadding<AssignMoveBlob::DataType>);
+
         //static_assert(Assignable<Dummy>);
 
         TEST(ObjectClone, true)
@@ -103,5 +122,25 @@ namespace pensar_digital
                     CHECK_EQ(Object, o, *o1, pd::to_string(i));
                 }
             TEST_END(ObjectBinaryFileStreaming2)
+
+            TEST(ObjectAssigns, true)
+                AssignMoveBlob a{ { Double64(2.5), 1 } };
+                AssignMoveBlob b{ { Double64(9.5), 7 } };
+
+                assigns(b, a);
+
+                CHECK_EQ(int64_t, b.data()->a, 1, W("0. assigns should copy int64"));
+                CHECK(std::abs(static_cast<double>(b.data()->b) - 2.5) < Test::DEFAULT_DELTA, W("1. assigns should copy double"));
+            TEST_END(ObjectAssigns)
+
+            TEST(ObjectMoves, true)
+                AssignMoveBlob a{ { Double64(4.25), 3 } };
+                AssignMoveBlob b{ { Double64(9.75), 8 } };
+
+                moves(b, a);
+
+                CHECK_EQ(int64_t, b.data()->a, 3, W("0. moves should copy int64"));
+                CHECK(std::abs(static_cast<double>(b.data()->b) - 4.25) < Test::DEFAULT_DELTA, W("1. moves should copy double"));
+            TEST_END(ObjectMoves)
     }
 }

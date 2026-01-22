@@ -263,6 +263,14 @@ namespace pensar_digital
 		// StdLayoutTriviallyCopyable concept requires a type T that is standard layout and trivially copyable.
 		template<typename T>
 		concept StdLayoutTriviallyCopyable = StandardLayout<T> && TriviallyCopyable<T>;	
+
+		// NoPadding concept requires a type T with no padding bits (unique object representations).
+		template<typename T>
+		concept NoPadding = std::has_unique_object_representations_v<T>;
+
+		// StdLayoutTriviallyCopyableNoPadding concept requires standard layout, trivially copyable, and no padding.
+		template<typename T>
+		concept StdLayoutTriviallyCopyableNoPadding = StdLayoutTriviallyCopyable<T> && NoPadding<T>;
 		// Memcpyasble concept. Requires a function data() returning something convertible to void*. Usually a pointer to std::byte. And a data_size() returning something convertible to size_t.
 
 		template <typename T>

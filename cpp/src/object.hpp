@@ -39,15 +39,25 @@ namespace pensar_digital
     {
         namespace pd = pensar_digital::cpplib;
  
-        template <class T> T& assigns (T& l, const T& r) noexcept 
+        template <class T>
+        requires StdLayoutTriviallyCopyableNoPadding<typename T::DataType> && requires(T t)
+        {
+            { t.data() } -> std::convertible_to<typename T::DataType*>;
+        }
+        T& assigns (T& l, const T& r) noexcept 
         { 
-            std::memcpy  (l.data (), ((T&)r).data (), sizeof(T::DataType)); 
+            std::memcpy  (l.data (), ((T&)r).data (), sizeof(typename T::DataType)); 
             return l; 
         }
 
-        template <class T> T& moves (T& l, const T& r) noexcept
+        template <class T>
+        requires StdLayoutTriviallyCopyableNoPadding<typename T::DataType> && requires(T t)
+        {
+            { t.data() } -> std::convertible_to<typename T::DataType*>;
+        }
+        T& moves (T& l, const T& r) noexcept
         { 
-            std::memmove (l.data (), ((T&)r).data (), sizeof(T::DataType));
+            std::memmove (l.data (), ((T&)r).data (), sizeof(typename T::DataType));
             return l; 
         }
     
@@ -68,6 +78,7 @@ namespace pensar_digital
             };
             static_assert(TriviallyCopyable<Data>, "Data must be a trivially copyable type");
 			static_assert(StandardLayout<Data>, "Data must be a standard layout type");
+            static_assert(NoPadding<Data>, "Data must have unique object representations (no padding)");
 
             Data mdata; //!< Member variable mdata contains the object data.
         public:
