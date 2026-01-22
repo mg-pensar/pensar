@@ -16,11 +16,21 @@ namespace pensar_digital
     using namespace pensar_digital::unit_test;
     namespace cpplib
     {
+        const std::byte ZERO = std::byte{0};
+        using DummyPadding = std::array<std::byte, 7>;
+        constexpr DummyPadding empty_padding = {ZERO,ZERO,ZERO,ZERO,ZERO,ZERO,ZERO};
         struct Dummy
         {
-            CS<0, 10> cs10;
-            int64_t i;
+            
+            int64_t i;          // 8‑aligned
+            CS<0, 16> cs10;     // make CS size a multiple of 8 (change to 16)
             char c;
+            DummyPadding pad; // explicit tail padding
+            
+            Dummy (int64_t i_ = 0, const C* str = W(""), char c_ = '\0', DummyPadding p = empty_padding) noexcept
+                : i(i_), cs10(str), c(c_), pad(p)
+            {
+            }
 
             // add == operator using equal from equal.hpp so that it uses std::memcmp.
             bool operator==(const Dummy& other) const noexcept
@@ -30,13 +40,15 @@ namespace pensar_digital
 
         };
 
+        static_assert(StdLayoutTriviallyCopyable<Dummy>);
+
         TEST(CArray, true)
 			using DummyArray = CArray<3, Dummy>;
     		static_assert(StdLayoutTriviallyCopyable<DummyArray>);
 
-			const Dummy d0 = { W("blah"), 0,'a' };
-		    const Dummy d1 = { W("bléh"), 1, 'b' };
-		    const Dummy d2 = { W("blih"), 2, 'c' };
+			const Dummy d0 = { 0, W("blah"), 'a' };
+		    const Dummy d1 = { 1, W("bléh"), 'b' };
+		    const Dummy d2 = { 2, W("blih"), 'c' };
             CArray<3, Dummy> a = {d0, d1, d2};
 		    CHECK_EQ(size_t, a.size(), 3, "size must be 3");
 
@@ -50,13 +62,19 @@ namespace pensar_digital
             CHECK(a.compare_range(a2, 3), "full range compare must match");
             CHECK(a.compare_range(a2, 0, 2), "partial range compare must match");
             CHECK(!a.compare_range(a2, 1, 3), "out-of-bounds range compare must not match");
-            // DummyArray d_array = {d0, d1, d2};
-            // CHECK(a.compare_range(d_array, 3), "raw pointer range compare must match");
-            // auto res = a.contains(d1);
-            // CHECK(res, "element must be found at index 1");
-			// CHECK(res.mresult == 1, "element must be at index 1");
-            // res = a.contains(Dummy{W("notfound"), 0, 'x'});
-			// CHECK(!res, "element must not be found");
+            
+            DummyArray d_array = {d0, d1, d2};
+            CHECK(a.compare_range(d_array, 3), "raw pointer range compare must match");
+            
+            auto res = a.contains(d1);
+            CHECK(res, "element must be found at index 1");
+			CHECK(res.mresult == 1, "element must be at index 1");
+            res = a.contains(Dummy{0, W("notfound"), 'x'});
+			CHECK(!res, "element must not be found");
+
+            std::array<Dummy, 3> std_array = {d0, d1, d2};
+            CHECK(a.compare_range(std_array.data(), 3), "compare with std::array must match");
+            static_assert(StdLayoutTriviallyCopyable<std::array<Dummy,3>>);
         TEST_END(CArray)
     }
 }

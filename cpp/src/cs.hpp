@@ -132,14 +132,14 @@ namespace pensar_digital
         }
 
 
-        template<size_t MIN = 0, size_t MAX = 20> //, typename Encoding = icu::UnicodeString>
+        template<size_t MIN = 0, size_t MAX = 20, bool CaseSensitive = false, bool AccentSensitive = false>
         class CS
         {
         public:
             using value_type = C;
             std::array<C, MAX> data;
-            bool case_sensitive = false;
-            bool accent_sensitive = false;
+            inline static constexpr bool case_sensitive = CaseSensitive;
+            inline static constexpr bool accent_sensitive = AccentSensitive;
             inline static const size_t MAX_SIZE = MAX;
             inline static const size_t MAX_LENGTH = MAX - 1;
             inline static const size_t MIN_SIZE = MIN;
