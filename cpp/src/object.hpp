@@ -134,8 +134,8 @@ namespace pensar_digital
             /** Default destructor */
             virtual ~Object() = default;
 
-            virtual Object& assign(const Object& o) noexcept { std::memcpy((void*)data(), ((Object&)o).data(), data_size()); return *this; }
-            virtual Object& assign(const Object&& o) noexcept { std::memmove((void*)data(), ((Object&)o).data(), data_size()); return *this; }
+            virtual Object& assign(const Object& o) noexcept  { std::memcpy ((void*)data(), o.data(), data_size()); return *this; }
+            virtual Object& assign(Object&& o) noexcept { std::memmove((void*)data(), o.data(), data_size()); return *this; }
            Object& object_assign(MemoryBuffer& mb) noexcept
             {
                 INFO.test_class_name_and_version (mb);
