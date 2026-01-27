@@ -12,6 +12,7 @@
 #include "../../cpp/src/stop_watch.hpp"
 #include "../../cpp/src/path.hpp"
 #include "../../cpp/src/stream_util.hpp"
+#include "../../cpp/src/sys_user_info.hpp"
 
 #include <string>
 #include <stdexcept>
@@ -69,6 +70,7 @@ namespace pensar_digital
                 bool stop_on_failure;
                 bool enabled;
                 S name;
+                Path _test_dir;
             public:
                 static constexpr double DEFAULT_DELTA = 0.0000001; // Added default delta
                 inline static const ClassInfo INFO = { CPPLIB_NAMESPACE, W("Test"), 1, 1, 1 };
@@ -87,7 +89,8 @@ namespace pensar_digital
                 name            (test_name   ),
                 order           (aorder      ),
                 stop_on_failure (stop_on_fail),
-                enabled         (is_enabled  ) {}
+                enabled         (is_enabled  ),
+                _test_dir       (get_user_home() / "test_dir/") {}
 
             /// Virtual destructor.
             virtual ~Test() {}
@@ -96,7 +99,7 @@ namespace pensar_digital
             virtual bool run () = 0;
 
             S get_name () const { return name; }
-			
+			Path test_dir () const { return _test_dir; }
             void set_name (const S& a_name) { name = a_name; }
 
             // Specialization for floating-point types

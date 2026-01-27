@@ -1,12 +1,13 @@
 #ifndef LOG_H_INCLUDED
 #define LOG_H_INCLUDED
 
-#include "macros.hpp"
-#include "string_def.hpp"
 
 #include <iostream>
 #include <fstream>
 #include <string>
+
+#include "macros.hpp"
+#include "string_def.hpp"
 
 namespace pensar_digital
 {
@@ -23,7 +24,7 @@ namespace pensar_digital
 
             inline static const C* default_log_file_name() 
             {
-                return W("C:\\out\\log.txt");
+                return W("./log.txt");
             }
             static bool initialized = false;
             static inline FStream log_stream; // The log stream.           

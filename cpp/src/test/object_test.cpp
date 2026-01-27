@@ -75,7 +75,10 @@ namespace pensar_digital
             {
 				objects.push_back(pd::Object::get(i));
 			}
-            std::ofstream out (W ("c:\\tmp\\test\\ObjectBinaryFileStreaming\\test.bin"), std::ios::binary);
+            Path file = test_dir () / W("ObjectBinaryFileStreaming/");
+            file.create_dir ();
+            file /= Path (W("test.bin"));
+            std::ofstream out (file.s (), std::ios::binary);
 
             for (Id i = 0; i < N; i++)
             {
@@ -83,7 +86,7 @@ namespace pensar_digital
             }
 			out.close();
 
-            std::ifstream in (W("c:\\tmp\\test\\ObjectBinaryFileStreaming\\test.bin"), std::ios::binary);
+            std::ifstream in (file.s (), std::ios::binary);
             for (Id i = 0; i < N; i++)
             {
 				Object::Ptr o = pd::Object::get();
@@ -101,7 +104,10 @@ namespace pensar_digital
                 {
                     objects.push_back(pd::Object::get(i));
                 }
-                std::ofstream out(W("c:\\tmp\\test\\ObjectBinaryFileStreaming\\test.bin"), std::ios::binary);
+                Path file = test_dir () / W("ObjectBinaryFileStreaming2/");
+                file.create_dir ();
+                file /= Path (W("test.bin"));
+                std::ofstream out(file.s (), std::ios::binary);
 
                 for (Id i = 0; i < N; i++)
                 {
@@ -110,7 +116,7 @@ namespace pensar_digital
                 }
                 out.close();
 
-                std::ifstream in(W("c:\\tmp\\test\\ObjectBinaryFileStreaming\\test.bin"), std::ios::binary);
+                std::ifstream in(file.s (), std::ios::binary);
                 for (Id i = 0; i < N; i++)
                 {
                     
