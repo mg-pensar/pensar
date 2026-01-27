@@ -62,6 +62,58 @@ namespace pensar_digital
         }
     
 
+        /// \remark To create a child class of Object:
+        /// 1) Define a nested `Data` with standard layout, trivially copyable, and no padding.
+        /// 2) Add `using DataType = Data;` and a `data()` accessor returning `Data*`.
+        /// 3) Add `using Ptr = std::shared_ptr<Derived>;` for consistent smart pointers.
+        /// 4) Call `initialize()` (or `assign()`) from constructors to set the data.
+        /// 5) Override `info_ptr()` and keep `INFO` in sync for serialization.
+        /// 6) If you need factory construction, add a `Factory` typedef and a static
+        ///    factory instance like the base class does (or reuse `Object::FactoryType`).
+        /// 7) If you customize binary serialization, override `binary_read()` and
+        ///    `binary_write()` but keep the class/version checks consistent with `INFO`.
+        ///
+        /// Minimal example:
+        /// \code
+        /// class Person : public pd::Object
+        /// {
+        /// public:
+        ///     using Ptr = std::shared_ptr<Person>;
+        ///     struct Data : public pd::Object::DataType
+        ///     {
+        ///         pd::Id age;
+        ///         Data(const pd::Id& id = pd::NULL_ID, const pd::Id& a = 0) noexcept
+        ///             : pd::Object::DataType(id), age(a) {}
+        ///     };
+        ///     static_assert(pd::TriviallyCopyable<Data>, "Data must be trivially copyable");
+        ///     static_assert(pd::StandardLayout<Data>, "Data must be standard layout");
+        ///     static_assert(pd::NoPadding<Data>, "Data must have no padding");
+        ///     using DataType = Data;
+        ///     inline static const ClassInfo INFO = { CPPLIB_NAMESPACE, W("Person"), 1, 1, 1 };
+        ///     const ClassInfo* info_ptr() const noexcept override { return &INFO; }
+        ///     using Factory = pd::Factory<Person, DataType>;
+        ///     inline static Factory mfactory = { 3, 10, DataType{} };
+        ///
+        /// private:
+        ///     Data mdata;
+        ///
+        /// public:
+        ///     const pd::Data* data() const noexcept override { return &mdata; }
+        ///     Person(const Data& d = Data{}) noexcept { initialize(d); }
+        ///
+        ///     std::istream& binary_read(std::istream& is, const std::endian& order = std::endian::native) override
+        ///     {
+        ///         INFO.test_class_name_and_version(is, order);
+        ///         return is.read((char*)(&mdata), DATA_SIZE);
+        ///     }
+        ///
+        ///     std::ostream& binary_write(std::ostream& os, const std::endian& order = std::endian::native) const override
+        ///     {
+        ///         INFO.binary_write(os, order);
+        ///         return os.write((const char*)(&mdata), DATA_SIZE);
+        ///     }
+        /// };
+        /// \endcode
         class Object
         {
 		    public:
