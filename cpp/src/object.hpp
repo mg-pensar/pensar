@@ -210,14 +210,14 @@ namespace pensar_digital
             inline virtual std::string sclass_name() const
             {
                 std::string s = typeid(*this).name();
-                s.erase(0, sizeof("class ") - 1);
+                if (s.starts_with ("class "))
+                    s.erase(0, sizeof("class ") - 1);
                 return s;
             }
 
             inline virtual S class_name() const
             {
-                std::string s = typeid(*this).name();
-                s.erase(0, sizeof("class ") - 1);
+                std::string s = sclass_name ();
 #ifdef WIDE_CHAR
                 return pd::to_wstring(s);
 #else
