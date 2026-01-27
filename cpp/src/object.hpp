@@ -88,7 +88,7 @@ namespace pensar_digital
         private:
             using Factory = pd::Factory<Object, typename Object::DataType>;
 		public:
-            inline virtual pd::Data* get_null_data() const noexcept { return (pd::Data*)(&NULL_DATA); }
+            inline virtual const pd::Data* get_null_data() const noexcept { return (pd::Data*)(&NULL_DATA); }
 
             using FactoryType = Factory;
             inline const BytePtr object_data_bytes() const noexcept { return (BytePtr)&mdata; }
