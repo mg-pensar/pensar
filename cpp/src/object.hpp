@@ -100,12 +100,21 @@ namespace pensar_digital
             inline static constexpr size_t DATA_SIZE = sizeof(mdata);
             inline static constexpr size_t      SIZE = DATA_SIZE + sizeof(ClassInfo);
 
-            virtual size_t data_size() const noexcept { return sizeof(this->mdata); }
-            virtual size_t size() const noexcept { return data_size() + sizeof(ClassInfo); }
+            virtual size_t data_size() const noexcept { return DATA_SIZE; }
+            virtual size_t size     () const noexcept { return SIZE     ; }
         protected:
             /// Set id
             /// \param val New value to set
             void set_id(const Id& value) { mdata.mid = value; }
+            Object& assign (const Object&  o) noexcept { std::memcpy ((void*)data(), o.data(), data_size()); return *this; }
+            Object& assign (      Object&& o) noexcept { std::memmove((void*)data(), o.data(), data_size()); return *this; }
+             
+            Object& object_assign(MemoryBuffer& mb) noexcept
+            {
+                INFO.test_class_name_and_version (mb);
+                mb.read_known_size(object_data_bytes(), DATA_SIZE);
+                return *this;
+            }
         private:
             inline static Factory mfactory = { 3, 10, NULL_DATA }; //!< Member variable "factory"
 
@@ -134,26 +143,12 @@ namespace pensar_digital
             /** Default destructor */
             virtual ~Object() = default;
 
-            virtual Object& assign(const Object& o) noexcept  { std::memcpy ((void*)data(), o.data(), data_size()); return *this; }
-            virtual Object& assign(Object&& o) noexcept { std::memmove((void*)data(), o.data(), data_size()); return *this; }
-           Object& object_assign(MemoryBuffer& mb) noexcept
-            {
-                INFO.test_class_name_and_version (mb);
-                mb.read_known_size(object_data_bytes(), DATA_SIZE);
-                return *this;
-            }
             virtual Object& assign(MemoryBuffer& mb)
             {
 				// Verifies if it is the correct class and version.
                 if (mb.size() < SIZE)
 					log_throw(W("MemoryBuffer size is smaller than Object size."));
 				return object_assign (mb);
-            }
-
- 
-            Object& object_assign(const Object& o) noexcept {
-                mdata = o.mdata;
-                return *this;
             }
 
             inline virtual const Object& write(MemoryBuffer& mb) const noexcept
@@ -232,19 +227,6 @@ namespace pensar_digital
 
             // Clone method. 
             inline Object::Ptr clone() const noexcept { return pd::clone<Object>(*this, mdata.mid); }
-
-            inline virtual Object* get_obj() const noexcept
-            {
-                return ((Object*)(&(*(mfactory.get(NULL_DATA)))));
-            }
-
-            /*inline virtual Object* clone() const noexcept
-            {
-                Object* o = get_obj();
-                o->assign(*this);
-                return o;
-            }
-            */
 
             inline virtual bool equals(const Object& o) const noexcept
             {

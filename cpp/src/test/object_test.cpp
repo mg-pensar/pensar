@@ -58,7 +58,7 @@ namespace pensar_digital
 			auto o1 = pd::Object::get();
 			CHECK_NOT_EQ(Object, *o, *o1, W("0. o == o1"));
 
-			o1->object_assign (*mb);
+			o1->assign (*mb);
 			CHECK_EQ(Object, *o, *o1, W("1. o != o1"));
 
             mb->reset_read_offset();
