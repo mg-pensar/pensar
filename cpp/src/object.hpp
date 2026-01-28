@@ -248,7 +248,12 @@ namespace pensar_digital
             }
 
             inline virtual ByteSpan data_span() const noexcept { return ByteSpan(data_bytes(), data_size()); }
-
+            
+            std::span<const std::byte> as_bytes() const noexcept 
+            {
+                return std::as_bytes(std::span{ data(), data_size() });
+            }
+            
             /// \brief Uses std::as_writable_bytes to get a span of writable bytes from the object.
             inline virtual std::span<std::byte> wbytes() noexcept
             {
