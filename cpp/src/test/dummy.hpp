@@ -83,6 +83,7 @@ namespace pensar_digital
                         return true;
                     }
 
+                    
                     virtual std::istream& binary_read(std::istream& is, const std::endian& byte_order = std::endian::native)
                     {
                         Object::binary_read(is, byte_order);

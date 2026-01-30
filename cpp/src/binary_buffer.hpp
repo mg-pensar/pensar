@@ -7,6 +7,7 @@
 #include <cstdio>
 #include <cstring>
 #include <concepts>
+#include <type_traits>
 #include <expected>
 #include <print>
 #include <cstddef>
@@ -78,6 +79,11 @@ namespace pensar_digital
                 return self;
             }
 
+            // Overload for writable byte spans to avoid POD overload selection.
+            auto write(this auto&& self, std::span<std::byte> src) -> decltype(auto) {
+                return self.write(std::span<const std::byte>(src.data(), src.size()));
+            }
+
             // Write any object that satisfies BinarySerializable (e.g., your Person class)
             template <BinarySerializable T>
             auto write(this auto&& self, const T& obj) -> decltype(auto) {
@@ -87,7 +93,9 @@ namespace pensar_digital
             // Fallback for trivial types (int, float, etc.) that don't have .bytes()
             template <typename T>
             auto write(this auto&& self, const T& pod) -> decltype(auto) 
-                requires std::is_trivially_copyable_v<T> && (!BinarySerializable<T>)
+                requires std::is_trivially_copyable_v<T> && (!BinarySerializable<T>) &&
+                         (!std::is_same_v<std::remove_cvref_t<T>, std::span<std::byte>>) &&
+                         (!std::is_same_v<std::remove_cvref_t<T>, std::span<const std::byte>>)
             {
                 return self.write(std::as_bytes(std::span{ &pod, 1 }));
             }
@@ -170,7 +178,9 @@ namespace pensar_digital
             // Read into a trivial type (int, float, etc.)
             template <typename T>
             auto read(this auto&& self, T& pod) -> decltype(auto) 
-                requires std::is_trivially_copyable_v<T> && (!BinarySerializable<T>)
+                requires std::is_trivially_copyable_v<T> && (!BinarySerializable<T>) &&
+                         (!std::is_same_v<std::remove_cvref_t<T>, std::span<std::byte>>) &&
+                         (!std::is_same_v<std::remove_cvref_t<T>, std::span<const std::byte>>)
             {
                 auto dest_span = std::as_writable_bytes(std::span{ &pod, 1 });
                 return self.read(dest_span);

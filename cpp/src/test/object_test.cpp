@@ -1,20 +1,17 @@
 // author : Mauricio Gomes
 // license: MIT (https://opensource.org/licenses/MIT)
 
+
 #include "../../../unit_test/src/test.hpp"
 
 #include "../s.hpp"
 #include "../object.hpp"
 #include "../io_util.hpp"
 #include "../file.hpp"
+#include "../binary_buffer.hpp"
 #include "../test/dummy.hpp"
 #include "../double64.hpp"
-
-#include <memory>
-#include <fstream>
-#include <filesystem>
-#include <cstdint>
-#include <cmath>
+#include "../span_util.hpp"
 
 namespace pensar_digital
 {
@@ -53,17 +50,14 @@ namespace pensar_digital
 
         TEST(ObjectSerialization, true)
             auto o = pd::Object::get(42);
-            MemoryBuffer::Ptr mb = *o;
+            BinaryBuffer bb;
+            bb.write (o->as_bytes());
 
 			auto o1 = pd::Object::get();
 			CHECK_NOT_EQ(Object, *o, *o1, W("0. o == o1"));
 
-			o1->assign (*mb);
+			bb.read (o1->wbytes());
 			CHECK_EQ(Object, *o, *o1, W("1. o != o1"));
-
-            mb->reset_read_offset();
-			auto o2 = pd::Object::get(*mb);
-            CHECK_EQ(Object, *o, *o2, W("1. o != o1"));
 
          TEST_END(ObjectSerialization)
             
@@ -78,19 +72,22 @@ namespace pensar_digital
             Path file = test_dir () / W("ObjectBinaryFileStreaming/");
             file.create_dir ();
             file /= Path (W("test.bin"));
-            std::ofstream out (file.s (), std::ios::binary);
+            BinaryBuffer bb;
 
             for (Id i = 0; i < N; i++)
             {
-				objects[i]->binary_write(out);
+				bb.write (objects[i]->as_bytes());
             }
-			out.close();
 
-            std::ifstream in (file.s (), std::ios::binary);
+            bb.save_to_file(file.s ());
+
+            bb.clear();
+            bb.load_from_file(file.s ());
+
             for (Id i = 0; i < N; i++)
             {
 				Object::Ptr o = pd::Object::get();
-				o->binary_read(in);
+                bb.read (o->wbytes());
                 Object::Ptr o1 = pd::Object::get(i);
                 CHECK_EQ(Object, *o, *o1, pd::to_string(i));
             }
@@ -98,35 +95,34 @@ namespace pensar_digital
 
             TEST(ObjectBinaryFileStreaming2, true)
                 // Creates a vector with 1000 objects
-                std::vector<Object::Ptr> objects;
                 const Id N = 1000;
-                for (Id i = 0; i < N; i++)
-                {
-                    objects.push_back(pd::Object::get(i));
-                }
+                std::vector<Object::DataType> v(0);
+                v.reserve(N);
+                for (Id i = 0; i < N; ++i)
+                    v.emplace_back(i);
+                for (Id i = 0; i < N; ++i)
+                    CHECK_EQ(Id, v[i].mid, i, pd::to_string(i));
+ 
                 Path file = test_dir () / W("ObjectBinaryFileStreaming2/");
                 file.create_dir ();
                 file /= Path (W("test.bin"));
-                std::ofstream out(file.s (), std::ios::binary);
+                BinaryBuffer bb;
+                CHECK_EQ(size_t, v.size(), static_cast<size_t>(N), W("v.size()"));
+                CHECK_EQ(size_t, ccbytes(v).size(), N * sizeof(Object::DataType), W("ccbytes(v).size()"));
+                bb.write(ccbytes(v));
+                CHECK_EQ(size_t, bb.size(), ccbytes(v).size(), W("bb.size() after write"));
 
-                for (Id i = 0; i < N; i++)
-                {
-                    MemoryBuffer::Ptr mb = objects[i]->bytes();
-                    out.write((const char*)mb->data(), mb->size());
-                }
-                out.close();
+                auto save_result = bb.save_to_file(file.s());
+                CHECK(save_result.has_value(), W("save_to_file failed"));
 
-                std::ifstream in(file.s (), std::ios::binary);
-                for (Id i = 0; i < N; i++)
-                {
-                    
-                    MemoryBuffer mb(Object::SIZE);
-                    mb.write (in, mb.size());
-                    Object o(mb);
-                    
-                    Object::Ptr o1 = pd::Object::get(i);
-                    CHECK_EQ(Object, o, *o1, pd::to_string(i));
-                }
+                bb.clear();
+                auto load_result = bb.load_from_file(file.s());
+                CHECK(load_result.has_value(), W("load_from_file failed"));
+
+                CHECK_EQ(size_t, bb.size(), N * sizeof(Object::DataType), W("unexpected file size"));
+                std::vector<Object::DataType> v2(N);
+                bb.read (ccbytes(v2));
+                CHECK (std::memcmp(v.data(), v2.data(), N * sizeof(Object::DataType)) == 0, W("Data read from file should match original data"));
             TEST_END(ObjectBinaryFileStreaming2)
 
             TEST(ObjectAssigns, true)

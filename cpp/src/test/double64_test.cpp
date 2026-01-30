@@ -19,16 +19,16 @@ namespace pensar_digital
             CHECK_EQ(uint64_t, d0.bits, 0, W("0. default bits should be zero"));
 
             Double64 d1(3.5);
-            CHECK(std::abs(static_cast<double>(d1) - 3.5) < Test::DEFAULT_DELTA, W("1. conversion to double"));
+            CHECK(std::abs(d1 - 3.5) < Test::DEFAULT_DELTA, W("1. conversion to double"));
 
-            Double64 d2(std::bit_cast<uint64_t>(-2.25));
-            CHECK(std::abs(static_cast<double>(d2) + 2.25) < Test::DEFAULT_DELTA, W("2. bit constructor"));
+            Double64 d2(-2.25);
+            CHECK(std::abs(d2 + 2.25) < Test::DEFAULT_DELTA, W("2. bit constructor"));
 
-            Double64 d3 = d1 + 1.25;
-            CHECK(std::abs(static_cast<double>(d3) - 4.75) < Test::DEFAULT_DELTA, W("3. operator+"));
+            Double64 d3(d1 + 1.25);
+            CHECK(std::abs(d3 - 4.75) < Test::DEFAULT_DELTA, W("3. operator+"));
 
             d3 *= 2.0;
-            CHECK(std::abs(static_cast<double>(d3) - 9.5) < Test::DEFAULT_DELTA, W("4. operator*="));
+            CHECK(std::abs(d3 - 9.5) < Test::DEFAULT_DELTA, W("4. operator*="));
         TEST_END(Double64Basics)
 
         TEST(Double64MemcmpComparable, true)
