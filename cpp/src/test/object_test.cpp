@@ -52,7 +52,7 @@ namespace pensar_digital
         TEST(ObjectSerialization, true)
             auto o = pd::Object::get(42);
             BinaryBuffer bb;
-            bb.write (o->as_bytes());
+            bb.write (o->bytes());
 
 			auto o1 = pd::Object::get();
 			CHECK_NOT_EQ(Object, *o, *o1, W("0. o == o1"));
@@ -77,7 +77,7 @@ namespace pensar_digital
 
             for (Id i = 0; i < N; i++)
             {
-				bb.write (objects[i]->as_bytes());
+				bb.write (objects[i]->bytes());
             }
 
             bb.save_to_file(file.s ());

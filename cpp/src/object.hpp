@@ -12,7 +12,6 @@
 #include "factory.hpp"
 #include "log.hpp"
 #include "string_def.hpp"
-#include "memory_buffer.hpp"
 #include "equal.hpp"
 
 #include "concept.hpp"
@@ -101,17 +100,6 @@ namespace pensar_digital
         ///     const pd::Data* data() const noexcept override { return &mdata; }
         ///     Person(const Data& d = Data{}) noexcept { initialize(d); }
         ///
-        ///     std::istream& binary_read(std::istream& is, const std::endian& order = std::endian::native) override
-        ///     {
-        ///         INFO.test_class_name_and_version(is, order);
-        ///         return is.read((char*)(&mdata), DATA_SIZE);
-        ///     }
-        ///
-        ///     std::ostream& binary_write(std::ostream& os, const std::endian& order = std::endian::native) const override
-        ///     {
-        ///         INFO.binary_write(os, order);
-        ///         return os.write((const char*)(&mdata), DATA_SIZE);
-        ///     }
         /// };
         /// \endcode
         class Object
@@ -160,13 +148,7 @@ namespace pensar_digital
             void set_id(const Id& value) { mdata.mid = value; }
             Object& assign (const Object&  o) noexcept { std::memcpy ((void*)data(), o.data(), data_size()); return *this; }
             Object& assign (      Object&& o) noexcept { std::memmove((void*)data(), o.data(), data_size()); return *this; }
-             
-            Object& object_assign(MemoryBuffer& mb) noexcept
-            {
-                INFO.test_class_name_and_version (mb);
-                mb.read_known_size(object_data_bytes(), DATA_SIZE);
-                return *this;
-            }
+              
         private:
             inline static Factory mfactory = { 3, 10, NULL_DATA }; //!< Member variable "factory"
 
@@ -187,75 +169,16 @@ namespace pensar_digital
             /// Move constructor
             Object(Object&& o) noexcept { assign(o); }
 
-            Object(MemoryBuffer& mb)
-            {
-                object_assign(mb);
-            }
-
             /** Default destructor */
             virtual ~Object() = default;
 
-            virtual Object& assign(MemoryBuffer& mb)
-            {
-				// Verifies if it is the correct class and version.
-                if (mb.size() < SIZE)
-					log_throw(W("MemoryBuffer size is smaller than Object size."));
-				return object_assign (mb);
-            }
-
-            inline virtual const Object& write(MemoryBuffer& mb) const noexcept
-            {
-				info_ptr ()->write(mb);
-                mb.write((BytePtr)(data ()), data_size ());
-                return *this;
-            }
-
-            inline const Object& object_write(MemoryBuffer& mb) const noexcept
-            {
-                INFO.write(mb);
-                mb.write((BytePtr)(&mdata), DATA_SIZE);
-                return *this;
-            }
-            /*
-            inline virtual void bytes_to_vector(ConstBytes& v) const noexcept
-            {
-                VERSION->bytes(v);
-                size_t req_size = v.size() + data_size();
-                if (v.capacity() < req_size)
-                    v.resize(req_size);
-                std::copy_n(reinterpret_cast<const std::byte*>(&mdata), data_size(), v.end() - data_size());
-            }
-            */
-
-            inline MemoryBuffer::Ptr object_bytes() const noexcept
-            {
-                MemoryBuffer::Ptr mb = std::make_unique<MemoryBuffer>(SIZE);
-                mb->append((BytePtr)&INFO, sizeof(ClassInfo));
-                mb->append((BytePtr)(&mdata), DATA_SIZE);
-                return mb;
-            }
-
-            /// \brief Returns a MemoryBuffer::Ptr with the object data.
-            inline virtual MemoryBuffer::Ptr bytes() const noexcept
-            {
-               return object_bytes ();
-            }
-
-            // Implicit convertion to MemoryBuffer::Ptr.
-            inline operator MemoryBuffer::Ptr() const noexcept
-            {
-                return bytes();
-            }
-
-            inline virtual ByteSpan data_span() const noexcept { return ByteSpan(data_bytes(), data_size()); }
-            
-            std::span<const std::byte> as_bytes() const noexcept 
+            inline std::span<const std::byte> bytes() const noexcept 
             {
                 return std::as_bytes(std::span{ data(), data_size() });
             }
             
             /// \brief Uses std::as_writable_bytes to get a span of writable bytes from the object.
-            inline virtual std::span<std::byte> wbytes() noexcept
+            inline std::span<std::byte> wbytes() noexcept
             {
                 static_assert (sizeof(char) == sizeof(std::byte));
 
@@ -344,14 +267,6 @@ namespace pensar_digital
                 return mfactory.get(Data(id));
             };
 
-            static inline Factory::P get (MemoryBuffer& mb)
-            {
-                Factory::P o_ptr = get();
-                Object& o = *o_ptr;
-                o.assign(mb);
-                return o_ptr;
-            };
-
             inline virtual InStream& read(InStream& is) { return is >> mdata.mid; }
             inline virtual OutStream& write(OutStream& os) const { return os << id(); }
 
@@ -363,20 +278,6 @@ namespace pensar_digital
             inline OutStream& operator << (OutStream& os)
             {
                 return write(os);
-            }
-
-             inline virtual std::istream& binary_read(std::istream& is, const std::endian& byte_order = std::endian::native)
-            {
-                INFO.test_class_name_and_version(is, byte_order);
-                is.read((char*)(&mdata), DATA_SIZE);
-                return is;
-            };
-
-            inline virtual std::ostream& binary_write(std::ostream& os, const std::endian& byte_order = std::endian::native) const
-            {
-                INFO.binary_write(os, byte_order);
-                os.write((const char*)(&mdata), DATA_SIZE);
-                return os;
             }
 
             friend inline bool operator==(const Object& a, const Object& b) noexcept;

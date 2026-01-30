@@ -27,23 +27,6 @@ namespace pensar_digital
                 mprivate_interface_version(pri_ver) {
             }
 
-            inline void write(MemoryBuffer& mb) const noexcept
-            {
-                mb.write((BytePtr)this, sizeof(ClassInfo));
-            }
-
-            inline void read(MemoryBuffer& mb)
-            {
-                mb.read_known_size((BytePtr)this, sizeof(ClassInfo));
-            }
-
-            MemoryBuffer::Ptr bytes() const noexcept
-            {
-                MemoryBuffer::Ptr mb = std::make_unique<MemoryBuffer>(sizeof(ClassInfo));
-                write(*mb);
-                return mb;
-            }
-
             inline bool operator==(const ClassInfo& other) const noexcept
             {
                 return equal<ClassInfo>(*this, other);
@@ -54,19 +37,7 @@ namespace pensar_digital
                 return !equal<ClassInfo>(*this, other);
             }
 
-            inline void test_class_name_and_version(MemoryBuffer& mb) const
-            {
-                if (mb.size() < sizeof(ClassInfo))
-                    log_throw(W("MemoryBuffer size is smaller than ClassInfo size."));
-
-                ClassInfo info;
-                info.read(mb);
-
-                if (info != *this)
-                    log_throw(W("Version mismatch."));
-            }
-
-            inline const S to_s() const noexcept
+             inline const S to_s() const noexcept
             {
                 SStream ss;
                 ss << mnamespace << W("::") << mclass_name
@@ -74,24 +45,6 @@ namespace pensar_digital
                     << W(".") << mprotected_interface_version
                     << W(".") << mprivate_interface_version;
                 return ss.str();
-            }
-
-            inline std::istream& binary_read(std::istream& is, const std::endian& byte_order)
-            {
-                return is.read((char*)(this), sizeof(ClassInfo));
-            }
-
-            inline std::ostream& binary_write(std::ostream& os, const std::endian& byte_order) const
-            {
-                return os.write((const char*)this, sizeof(ClassInfo));
-            }
-
-            inline void test_class_name_and_version(std::istream& is, const std::endian& byte_order = std::endian::native) const
-            {
-                ClassInfo info;
-                info.binary_read(is, byte_order);
-                if (info != *this)
-                    log_throw(W("Version mismatch."));
             }
         };
 

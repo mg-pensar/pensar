@@ -18,7 +18,6 @@
 #include "generator.hpp"
 #include "factory.hpp"
 #include "bool.hpp"
-#include "memory_buffer.hpp"
 #include "clone_util.hpp"
 #include "equal.hpp"
 
@@ -107,11 +106,6 @@ namespace pensar_digital
             // Copy constructor
             Command (const Command&) = default;
 
-			Command (MemoryBuffer& mb) : Object (mb)
-            {
-                assign_without_object (mb);
-            }
-
             // Move assignment
             Command& operator= (Command&&) = default;
 
@@ -138,61 +132,6 @@ namespace pensar_digital
 					return false;
 				return equal<Command> (*this, *pother);
 			}
-
-            virtual Command& assign_without_object(MemoryBuffer& mb) noexcept
-            {
-                INFO.test_class_name_and_version (mb);
-                mb.read_known_size((BytePtr)&mdata, DATA_SIZE);
-				mgenerator = G(mb);
-                return *this;
-            }
-
-            virtual Command& assign(MemoryBuffer& mb) noexcept
-            {
-                Object::assign(mb);
-                return assign_without_object(mb);
-            }
-            inline virtual MemoryBuffer::Ptr bytes() const noexcept
-            {
-				MemoryBuffer::Ptr mb = std::make_unique<MemoryBuffer>(SIZE);  
-                mb->append (*Object::bytes());
-				mb->append (INFO.bytes());
-                mb->write((BytePtr(&mdata)), DATA_SIZE);
-				mb->append (*(mgenerator.bytes()));
-                return mb;
-			}
-
-
-            virtual std::ostream& child_binary_write(std::ostream& os, const std::endian& byte_order = std::endian::native) const 
-            { 
-                return os; 
-            }
-
-            virtual std::istream& child_binary_read(std::istream& is, const std::endian& byte_order = std::endian::native) 
-            { 
-                return is; 
-            }
-
-            inline virtual std::ostream& binary_write(std::ostream& os, const std::endian& byte_order = std::endian::native) const
-			{
-				Object::binary_write (os, byte_order);
-				INFO.binary_write(os, byte_order);
-				os.write((char*)&mdata, DATA_SIZE);
-				mgenerator.binary_write(os, byte_order);
-				
-				return os;
-			}
-
-			inline virtual std::istream& binary_read(std::istream& is, const std::endian& byte_order = std::endian::native)
-			{
-				Object::binary_read(is, byte_order);
-				INFO.test_class_name_and_version(is, byte_order);
-                is.read((char*)&mdata, DATA_SIZE);
-                mgenerator.binary_read(is, byte_order);
-                
-                return is;
-			}
-
             protected:
 
                 inline virtual void _run()  {}
@@ -216,13 +155,6 @@ namespace pensar_digital
 
             bool ok() const { return mdata.mok; }
 
-
-            /*
-            inline static typename FactoryType::P get(const Id aid = NULL_ID, const Data& data = NULL_DATA) noexcept
-            {
-                return mfactory.get(aid, data);
-            }
-            */
         };
 
         // NullCommand is a command that does nothing.
@@ -231,7 +163,6 @@ namespace pensar_digital
             public:
 				using Ptr = std::shared_ptr<NullCommand>;
                 NullCommand () : Command(NULL_ID) { }
-				NullCommand (MemoryBuffer& mb) : Command (mb) { }
 				~NullCommand() = default;
 				void _run() { }
 				void _undo() const { }
@@ -239,22 +170,6 @@ namespace pensar_digital
                 inline virtual const ClassInfo* info_ptr() const noexcept { return &INFO; }
 
 				Ptr clone() const noexcept { return pd::clone<NullCommand>(*this); }
-
-                inline virtual std::ostream& binary_write(std::ostream& os, const std::endian& byte_order = std::endian::native) const
-                {
-                    Command::binary_write(os, byte_order);
-                    INFO.binary_write(os, byte_order);
- 
-                    return os;
-                }
-
-                inline virtual std::istream& binary_read(std::istream& is, const std::endian& byte_order = std::endian::native)
-                {
-                    Command::binary_read(is, byte_order);
-                    INFO.test_class_name_and_version(is, byte_order);
-
-                    return is;
-                }
         };
         inline static const NullCommand NULL_CMD = NullCommand();
 
@@ -332,8 +247,6 @@ namespace pensar_digital
                    
 			    }  
 
-                CompositeCommand (MemoryBuffer& mb) : Command(mb), mdata(NULL_DATA) { assign_without_parent(mb); }
-
                 ~CompositeCommand()
                 {
                     mdata.free_commands();
@@ -343,33 +256,6 @@ namespace pensar_digital
                 inline static Factory mfactory = { 3, 10, NULL_ID };
 
                 public:
-
-                Command& assign_without_parent(MemoryBuffer& mb) noexcept
-                {
-                    for (Int i = 0; i < mdata.mindex; ++i)
-                    {
-                        mdata.mcommands[i]->assign(mb);
-                    }
-                    return *this;
-                }
-
-                virtual Command& assign(MemoryBuffer& mb) noexcept
-                {
-					Command::assign(mb);
-                    return assign_without_parent (mb);
-                }
-                inline virtual MemoryBuffer::Ptr bytes() const noexcept
-                {
-                    MemoryBuffer::Ptr mb = std::make_unique<MemoryBuffer>(size ());  
-				    mb->append(Command::bytes());
-                    mb->append(INFO.bytes());
-					mb->append((BytePtr)(&mdata.mindex), sizeof(mdata.mindex));
-                    for (Int i = 0; i < mdata.mindex; ++i)
-                    {
-                        mb->append(mdata.mcommands[i]->bytes());
-                    };
-				    return mb;
-                }
 
                 // Implements initialize method from Initializable concept.
                 virtual bool initialize (const Id id) noexcept
@@ -435,29 +321,6 @@ namespace pensar_digital
 				    }
                     return true;
                 }
-                inline virtual std::istream& binary_read(std::istream& is, const std::endian& byte_order = std::endian::native)
-                {
-                    Command::binary_read(is, byte_order);
-                    INFO.test_class_name_and_version (is, byte_order);
-				    is.read((char*)(&mdata), DATA_SIZE);
-				    for (size_t i = 0; i < mdata.mindex; ++i)
-				    {
-					    mdata.mcommands[i] = new Command ();
-					    mdata.mcommands[i]->binary_read(is, byte_order);
-				    }
-				    return is;
-			    }
-
-                inline virtual std::ostream& binary_write(std::ostream& os, const std::endian& byte_order = std::endian::native) const
-                {
-                    Command::binary_write(os, byte_order);
-                    INFO.binary_write(os, byte_order);
-				    for (size_t i = 0; i < mdata.mindex; ++i)
-                    {
-                        mdata.mcommands[i]->binary_write(os, byte_order);
-				    }
-                    return os;
-			    }
         };
  
     }

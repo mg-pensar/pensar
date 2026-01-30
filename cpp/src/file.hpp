@@ -20,7 +20,6 @@
 #include "object.hpp"
 #include "path.hpp"  
 #include "generator.hpp"
-#include "memory_buffer.hpp"
 #include "random_util.hpp"
 #include "log.hpp"
 #include "error.hpp"
@@ -75,7 +74,7 @@ namespace pensar_digital
 					if (_mode & std::ios::app     ) s += (s.empty() ? W("app"   ) : W(" | app"   ));
 					if (_mode & std::ios::ate     ) s += (s.empty() ? W("ate"   ) : W(" | ate"   ));
 					if (_mode & std::ios::trunc   ) s += (s.empty() ? W("trunc" ) : W(" | trunc" ));
-                    return W("");
+                    return s;
                 }
 
                 inline const C* c_str() const noexcept 
@@ -737,8 +736,6 @@ namespace pensar_digital
 					}
 					return *this;
                 }
-			private:
-                MemoryBuffer  data;
         };
         // Streaming operators.
         extern InStream&  operator >> (InStream&  is,       File& file);

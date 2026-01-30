@@ -32,12 +32,10 @@ namespace pensar_digital
 
 			TEST_END(Result)
 
-				TEST(ResultSerialization, true)
+			TEST(ResultSerialization, true)
 				using R = Result<int>;
 				R r;
-				// Starts a MemoryBuffer with a TriviallyCopiable object.
-				MemoryBuffer mb((BytePtr)&r, sizeof(R));
-
+	
 				R r1(0, Bool::F, R::ErrorMessageType(W("err msg")));
 				CHECK_NOT_EQ(R, r, r1, W("0. r == r1"));
 				r1 = r;

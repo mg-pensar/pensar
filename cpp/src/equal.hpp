@@ -18,7 +18,7 @@ namespace pensar_digital
         struct HashComparableTag {};
         struct DataComparableTag {};
 		struct TriviallyComparableTag {};
-		struct StdLayoutTriviallyCopyableTag {};
+		struct MemcmpSafeTag {};
 
         // Type trait to select the appropriate tag.
         template <class T>
@@ -30,7 +30,7 @@ namespace pensar_digital
                 pensar_digital::cpplib::DataComparableTag,
                 std::conditional_t<
                     std::is_trivially_copyable_v<T>,
-                    pensar_digital::cpplib::StdLayoutTriviallyCopyableTag,
+                    pensar_digital::cpplib::MemcmpSafeTag,
                     pensar_digital::cpplib::TriviallyComparableTag
                 >
             >
@@ -59,9 +59,10 @@ namespace pensar_digital
         {
             return l == r;
 		}
-        // Implementation for StdLayoutTriviallyCopyable.
-        template <StdLayoutTriviallyCopyable T>
-        bool equal_impl(const T& l, const T& r, StdLayoutTriviallyCopyableTag)
+
+        // Implementation for MemcmpSafe.
+        template <WireSafe T>
+        bool equal_impl(const T& l, const T& r, MemcmpSafeTag)
         {
             if (&l == &r) // Same object
                 return true;

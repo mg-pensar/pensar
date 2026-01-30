@@ -4,13 +4,13 @@
 
 #include <vector>
 #include <span>
-#include <cstdio>
-#include <cstring>
+#include <cstdio> // for FILE operations
+#include <cstring> // for std::memcpy
 #include <concepts>
 #include <type_traits>
 #include <expected>
 #include <print>
-#include <cstddef>
+#include <cstddef> // for std::byte
 #include <string_view>
 
 namespace pensar_digital

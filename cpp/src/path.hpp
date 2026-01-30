@@ -207,19 +207,6 @@ namespace pensar_digital
                 return true;
             }
 
-            virtual std::istream& binary_read (std::istream& is, const std::endian& byte_order = std::endian::native)
-            {
-                return is;
-            };
-
-            virtual std::ostream& binary_write(std::ostream& os, const std::endian& byte_order = std::endian::native) const
-            {
-                Object::binary_write(os, byte_order);
-                INFO.binary_write(os, byte_order);
-                os.write((const char*)data(), data_size());
-                return os;
-            };
-
             virtual S debug_string() const noexcept
             {
                 return Object::debug_string() + W(" path = ") + s ();

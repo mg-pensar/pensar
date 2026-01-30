@@ -22,7 +22,7 @@ namespace pensar_digital
             BinaryBuffer buffer;
 
             auto o = pd::Object::get(42);
-            buffer.write(o->as_bytes ());
+            buffer.write(o->bytes ());
 
             pd::Object::Ptr o2 = pd::Object::get();
             buffer.read(o2->wbytes());
@@ -38,7 +38,7 @@ namespace pensar_digital
                 for (Id id = 1; id <= 1000; ++id) 
                 {
                     auto obj = pd::Object::get(id);
-                    buffer.write(obj->as_bytes());
+                    buffer.write(obj->bytes());
                 }
 
                 // Save to file

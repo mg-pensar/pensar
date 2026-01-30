@@ -78,48 +78,8 @@ namespace pensar_digital
             /// \param [in] astep Step to be used when incrementing the generator, defaults to 1.
             Generator (T aid = null_value<T>(), T initial_value = 0, T step = 1) noexcept : Object(aid == null_value<T>() ? 0 : aid), mdata(initial_value, step) {};
 
-			// Constructor from MemoryBuffer.
-			Generator(MemoryBuffer& mb) noexcept : Object(mb)
-            {
-                assign_without_parent (mb);
-            }
             virtual ~Generator () = default;
 
-            inline G& assign_without_parent (MemoryBuffer& mb) noexcept
-            {
-                INFO.test_class_name_and_version(mb);
-                mb.read_known_size((BytePtr)(&mdata), DATA_SIZE);
-                return *this;
-            }
-
-            inline G& generator_assign(MemoryBuffer& mb) noexcept
-            {
-                object_assign (mb);
-				return assign_without_parent (mb);
-            }
-
-			inline virtual Object& assign(MemoryBuffer& mb) noexcept
-			{
-				return generator_assign (mb);
-			}
-
-            inline virtual MemoryBuffer::Ptr bytes() const noexcept
-            {
-                MemoryBuffer::Ptr mb = std::make_unique<MemoryBuffer>(SIZE);
-				mb->append (object_bytes ());
-                mb->append (INFO.bytes());
-				mb->write ((BytePtr)data (), data_size ());
-				return mb;
-            }
-
-            inline MemoryBuffer::Ptr generator_bytes() const noexcept
-            {
-                MemoryBuffer::Ptr mb = std::make_unique<MemoryBuffer>(SIZE);
-                mb->append(object_bytes()->data (), Object::SIZE);
-                mb->append(INFO.bytes ());
-                mb->write(generator_data_bytes (), DATA_SIZE);
-                return mb;
-            }
             /// \brief Increments value and return the new value.
             /// \return The new value.
             inline virtual T get_id () { mdata.mvalue += mdata.mstep; return mdata.mvalue; }
@@ -150,23 +110,7 @@ namespace pensar_digital
             /// \param val New value to set
             inline virtual void set_value(T val) { mdata.mvalue = val; }
 
-            virtual std::istream& binary_read(std::istream& is, const std::endian& byte_order = std::endian::native)
-            {
-                Object::binary_read (is, byte_order);
-                INFO.test_class_name_and_version (is, byte_order);
-                is.read((char*)data(), data_size());
-                return is;
-            };
-
-            virtual std::ostream& binary_write(std::ostream& os, const std::endian& byte_order = std::endian::native) const
-            {
-                Object::binary_write(os, byte_order);
-                INFO.binary_write(os, byte_order);
-                os.write((const char*)data(), data_size());
-                return os;
-            };
-
-            void set_id (const T& aid) { Object::set_id (aid); }
+             void set_id (const T& aid) { Object::set_id (aid); }
 
            
             static inline Factory::P  get (T aid = null_value<T>(), T initial_value = 0, T step = 1) noexcept
@@ -191,11 +135,7 @@ namespace pensar_digital
             inline virtual OutStream& write (OutStream& os) const { Object::write(os); return os << mdata.minitial_value
                                                                                                  << mdata.mstep << W(" ")
                                                                                                  << mdata.mvalue; }
-
-            //friend InStream& operator >> <Type, T> (InStream& is, G& p);
-            //friend OutStream& operator<< <Type, T> (OutStream& os, const G& p);
-
-      }; // class Generator
+       }; // class Generator
 
       /// Makes Generator Streamable.
       template <class Type, typename T> OutStream& operator << (OutStream& os, const Generator<Type, T>& g) { return g.write (os); }

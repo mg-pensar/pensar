@@ -4,7 +4,6 @@
 #include "../../../unit_test/src/test.hpp"
 
 #include "../command.hpp"
-#include "../memory_buffer.hpp"
 
 
 namespace pensar_digital
@@ -19,7 +18,6 @@ namespace pensar_digital
 			public:
 				using Ptr = std::shared_ptr<IncCmd>;
 				IncCmd(const Id aid = NULL_ID) : Command(aid) { }
-				IncCmd(MemoryBuffer& mb) : Command(mb) { }
 				~IncCmd() = default;
 
 				using Factory = pd::Factory<IncCmd, Id>;
@@ -44,30 +42,6 @@ namespace pensar_digital
 				inline Ptr clone() const noexcept { return pd::clone<IncCmd>(*this, id()); }
 				inline void _run() { ++value; }
 				inline void _undo() const { --value; }
-
-				inline virtual MemoryBuffer::Ptr bytes() const noexcept
-				{
-					MemoryBuffer::Ptr mb = std::make_unique<MemoryBuffer>(size());
-					mb->append(Command::bytes());
-					mb->append(INFO.bytes());
-					return mb;
-				}
-
-				inline virtual std::ostream& binary_write(std::ostream& os, const std::endian& byte_order = std::endian::native) const
-				{
-					Command::binary_write(os, byte_order);
-					INFO.binary_write(os, byte_order);
-
-					return os;
-				}
-
-				inline virtual std::istream& binary_read(std::istream& is, const std::endian& byte_order = std::endian::native)
-				{
-					Command::binary_read(is, byte_order);
-					INFO.test_class_name_and_version(is, byte_order);
-
-					return is;
-				}
 		};
 
 		class DecCmd : public Command
@@ -75,7 +49,6 @@ namespace pensar_digital
 			public:
 				using Ptr = std::shared_ptr<DecCmd>;
 				DecCmd(const Id aid = NULL_ID) : Command(aid) { }
-				DecCmd(MemoryBuffer& mb) : Command(mb) { }
 				~DecCmd() = default;
 
 				using Factory = pd::Factory<DecCmd, Id>;
@@ -102,29 +75,6 @@ namespace pensar_digital
 
 				void _run() { --value; }
 				void _undo() const { ++value; }
-				inline virtual MemoryBuffer::Ptr bytes() const noexcept
-				{
-					MemoryBuffer::Ptr mb = std::make_unique<MemoryBuffer>(size());
-					mb->append(Command::bytes());
-					mb->append(INFO.bytes());
-					return mb;
-				}
-
-				inline virtual std::ostream& binary_write(std::ostream& os, const std::endian& byte_order = std::endian::native) const
-				{
-					Command::binary_write(os, byte_order);
-					INFO.binary_write(os, byte_order);
-
-					return os;
-				}
-
-				inline virtual std::istream& binary_read(std::istream& is, const std::endian& byte_order = std::endian::native)
-				{
-					Command::binary_read(is, byte_order);
-					INFO.test_class_name_and_version(is, byte_order);
-
-					return is;
-				}
 		};
 
 		class IncFailCmd : public Command
@@ -132,7 +82,6 @@ namespace pensar_digital
 		public:
 			using Ptr = std::shared_ptr<IncFailCmd>;
 			IncFailCmd(const Id aid = NULL_ID) : Command(aid) { }
-			IncFailCmd(MemoryBuffer& mb) : Command(mb) { }
 			~IncFailCmd() = default;
 
 			using Factory = pd::Factory<IncFailCmd, Id>;
@@ -157,29 +106,6 @@ namespace pensar_digital
 
 			void _run() { throw "IncFailCmd.run () error."; }
 			void _undo() const { --value; }
-			inline virtual MemoryBuffer::Ptr bytes() const noexcept
-			{
-				MemoryBuffer::Ptr mb = std::make_unique<MemoryBuffer>(size());
-				mb->append(Command::bytes());
-				mb->append(INFO.bytes());
-				return mb;
-			}
-
-			inline virtual std::ostream& binary_write(std::ostream& os, const std::endian& byte_order = std::endian::native) const
-			{
-				Command::binary_write(os, byte_order);
-				INFO.binary_write(os, byte_order);
-
-				return os;
-			}
-
-			inline virtual std::istream& binary_read(std::istream& is, const std::endian& byte_order = std::endian::native)
-			{
-				Command::binary_read(is, byte_order);
-				INFO.test_class_name_and_version(is, byte_order);
-
-				return is;
-			}
 		};
 
 
@@ -188,7 +114,6 @@ namespace pensar_digital
 			public:
 				using Ptr = std::shared_ptr<DoubleCmd>;
 				DoubleCmd(const Id aid = NULL_ID) : Command(aid) { }
-				DoubleCmd(MemoryBuffer& mb) : Command(mb) { }
 				~DoubleCmd() = default;
 
 				using Factory = pd::Factory<DoubleCmd, Id>;
@@ -213,29 +138,6 @@ namespace pensar_digital
 				virtual Ptr clone() const noexcept { return pd::clone<DoubleCmd>(*this, id()); }
 				void _run() { value *= 2; }
 				void _undo() const { value /= 2; }
-				inline virtual MemoryBuffer::Ptr bytes() const noexcept
-				{
-					MemoryBuffer::Ptr mb = std::make_unique<MemoryBuffer>(size());
-					mb->append(Command::bytes());
-					mb->append(INFO.bytes());
-					return mb;
-				}
-
-				inline virtual std::ostream& binary_write(std::ostream& os, const std::endian& byte_order = std::endian::native) const
-				{
-					Command::binary_write(os, byte_order);
-					INFO.binary_write(os, byte_order);
-
-					return os;
-				}
-
-				inline virtual std::istream& binary_read(std::istream& is, const std::endian& byte_order = std::endian::native)
-				{
-					Command::binary_read(is, byte_order);
-					INFO.test_class_name_and_version(is, byte_order);
-
-					return is;
-				}
 		};
 
 		class DoubleFailCmd : public Command
@@ -243,7 +145,6 @@ namespace pensar_digital
 			public:
 				using Ptr = std::shared_ptr<DoubleFailCmd>;
 				DoubleFailCmd(const Id aid = NULL_ID) : Command(aid) { }
-				DoubleFailCmd(MemoryBuffer& mb) : Command(mb) { }
 				~DoubleFailCmd() = default;
 
 				using Factory = pd::Factory<DoubleFailCmd, Id>;
@@ -269,29 +170,6 @@ namespace pensar_digital
 				Ptr clone() const noexcept { return pd::clone<DoubleFailCmd>(*this, id()); }
 				void _run() { throw "Double errors."; }
 				void _undo() const { value /= 2; }
-				inline virtual MemoryBuffer::Ptr bytes() const noexcept
-				{
-					MemoryBuffer::Ptr mb = std::make_unique<MemoryBuffer>(size());
-					mb->append(Command::bytes());
-					mb->append(INFO.bytes());
-					return mb;
-				}
-
-				inline virtual std::ostream& binary_write(std::ostream& os, const std::endian& byte_order = std::endian::native) const
-				{
-					Command::binary_write(os, byte_order);
-					INFO.binary_write(os, byte_order);
-
-					return os;
-				}
-
-				inline virtual std::istream& binary_read(std::istream& is, const std::endian& byte_order = std::endian::native)
-				{
-					Command::binary_read(is, byte_order);
-					INFO.test_class_name_and_version(is, byte_order);
-
-					return is;
-				}
 		};
 
 		TEST(Command, true)
@@ -386,8 +264,6 @@ namespace pensar_digital
 
 			CHECK_EQ(int, value, 0, "7");
 
-			MemoryBuffer::Ptr mb_ptr = cmd2.bytes();
-			Cmd cmd4(*mb_ptr);
 			value = 0;
 			cmd2.run();
 			CHECK_EQ(int, value, -2, "3");
@@ -405,11 +281,9 @@ namespace pensar_digital
 			Cmd cmd2;
 			CHECK_NOT_EQ(Cmd, cmd, cmd2, W("0"));
 
-			cmd.binary_write(out);
 			out.close();
 
 			std::ifstream in(W("c:\\tmp\\test\\CommandBinaryStreaming\\test.bin"), std::ios::binary);
-			cmd2.binary_read(in);
 			CHECK_EQ(Cmd, cmd, cmd2, W("1"));
 			TEST_END(CommandBinaryFileStreaming)
 
@@ -431,10 +305,6 @@ namespace pensar_digital
 			Cmd cmd;
 			Cmd cmd2;
 			CHECK_NOT_EQ(Cmd, cmd, cmd2, W("0"));
-
-			MemoryBuffer::Ptr mb_ptr = cmd.bytes ();
-
-			cmd2.assign(*mb_ptr);
 
 			CHECK_EQ(Cmd, cmd2, cmd, W("1"));
 

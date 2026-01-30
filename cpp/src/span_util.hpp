@@ -18,6 +18,20 @@ namespace pensar_digital
             std::is_trivially_copyable_v<T> &&
             std::has_unique_object_representations_v<T>;
 
+        template<WireSafe T>
+        inline std::span<const std::byte> bytes(T* ptr) noexcept 
+        {
+                return std::as_bytes(std::span{ (BytePtr)ptr, sizeof(T) });
+        }
+            
+        /// \brief Uses std::as_writable_bytes to get a span of writable bytes from the object.
+        template<WireSafe T>
+        inline std::span<std::byte> wbytes(T* ptr) noexcept
+        {
+            static_assert (sizeof(char) == sizeof(std::byte));
+
+            return std::as_writable_bytes(bytes(ptr));
+        }
 
         template<typename C>
         concept ContiguousContainer =

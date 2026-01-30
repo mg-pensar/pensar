@@ -3,7 +3,6 @@
 #include "../../../unit_test/src/test.hpp"
 
 #include "../generator.hpp"
-#include "../memory_buffer.hpp"
 
 #include "../concept.hpp"
 
@@ -74,10 +73,8 @@ namespace pensar_digital
 	    TEST(GeneratorSerialization, true)
 			using G = Generator<int>;
             G g;
-		    MemoryBuffer::Ptr mb = g.bytes ();
 		    G g2 (1);
 		    CHECK_NOT_EQ(G, g2, g, W("0"));
-			g2.assign(*mb);
 		    CHECK_EQ(G, g2, g, W("1"));
 		TEST_END(GeneratorSerialization)
 	
@@ -86,13 +83,11 @@ namespace pensar_digital
             typedef Generator<Object> G;
             typedef std::shared_ptr<G> GP;
             G g(1);
-            g.binary_write(out);
             out.close ();
             out.flush ();
 
             std::ifstream  in(W("c:\\tmp\\test\\GeneratorFileBinaryStreaming\\file_binary_streaming_test.bin"), std::ios::binary);
             GP pg2 = G::get (1);
-            pg2->binary_read  (in);
             in.close();
             G g3(3);
             CHECK_NOT_EQ(G, g3, g, W("0"));
@@ -116,12 +111,9 @@ namespace pensar_digital
             
             //G::Factory::P p = G::get (1, 0, 1);
             G g(1);
-            //Constructs a MemoryBuffer using constructor for StdLayoutTriviallyCopyableData types.
-            MemoryBuffer::Ptr buffer_ptr = g.generator_bytes ();
  
             G g2;
             CHECK_NOT_EQ(G, g2, g, W("0"));
-            g2.assign (*buffer_ptr);
             CHECK_EQ(G, g2, g, "1");
             
           TEST_END(GeneratorBinaryStreaming)
