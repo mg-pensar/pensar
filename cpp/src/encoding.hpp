@@ -36,17 +36,17 @@ namespace pensar_digital
 			{}
 		};
 
-		const EncodingBase< 5, Bool::F> ASCII         = { W("ASCII")     , NO_BOM        , Endian(Endian::NOT_APPLICABLE), 0};
-		const EncodingBase< 5, Bool::F> UTF_8         = { W("UTF-8")     , NO_BOM        , Endian(Endian::NOT_APPLICABLE), 0};
-		const EncodingBase< 9, Bool::T> UTF_8_BOM     = { W("UTF-8-BOM") , BOM_UTF_8     , Endian(Endian::NOT_APPLICABLE), 3};
-		const EncodingBase< 9, Bool::F> UTF_16_BE     = { W("UTF-16-BE") , NO_BOM        , Endian(Endian::BIG)           , 2};
-		const EncodingBase<13, Bool::T> UTF_16_BE_BOM = { W("UTF-16-BE-BOM"), BOM_UTF_16_BE , Endian(Endian::BIG)           , 2};
-		const EncodingBase< 9, Bool::F> UTF_16_LE     = { W("UTF-16-LE") , NO_BOM        , Endian(Endian::LITTLE)        , 2};
-		const EncodingBase<13, Bool::T> UTF_16_LE_BOM = { W("UTF-16-LE-BOM"), BOM_UTF_16_LE , Endian(Endian::LITTLE)        , 2};
-		const EncodingBase< 9, Bool::F> UTF_32_BE     = { W("UTF-32-BE") , NO_BOM        , Endian(Endian::BIG)           , 4};
-		const EncodingBase<13, Bool::T> UTF_32_BE_BOM = { W("UTF-32-BE-BOM"), BOM_UTF_32_BE , Endian(Endian::BIG)           , 4};
-		const EncodingBase< 9, Bool::F> UTF_32_LE     = { W("UTF-32-LE") , NO_BOM        , Endian(Endian::LITTLE)        , 4};
-		const EncodingBase<13, Bool::T> UTF_32_LE_BOM = { W("UTF-32-LE-BOM"), BOM_UTF_32_LE, Endian(Endian::LITTLE)         , 4};
+		const EncodingBase< 5, Bool::F> ASCII         = { W("ASCII")     	, NO_BOM       , Endian(Endian::NOT_APPLICABLE), 0};
+		const EncodingBase< 5, Bool::F> UTF_8         = { W("UTF-8")     	, NO_BOM       , Endian(Endian::NOT_APPLICABLE), 0};
+		const EncodingBase< 9, Bool::T> UTF_8_BOM     = { W("UTF-8-BOM") 	, BOM_UTF_8    , Endian(Endian::NOT_APPLICABLE), 3};
+		const EncodingBase< 9, Bool::F> UTF_16_BE     = { W("UTF-16-BE") 	, NO_BOM       , Endian(Endian::BIG)           , 2};
+		const EncodingBase<13, Bool::T> UTF_16_BE_BOM = { W("UTF-16-BE-BOM"), BOM_UTF_16_BE, Endian(Endian::BIG)           , 2};
+		const EncodingBase< 9, Bool::F> UTF_16_LE     = { W("UTF-16-LE") 	, NO_BOM       , Endian(Endian::LITTLE)        , 2};
+		const EncodingBase<13, Bool::T> UTF_16_LE_BOM = { W("UTF-16-LE-BOM"), BOM_UTF_16_LE, Endian(Endian::LITTLE)        , 2};
+		const EncodingBase< 9, Bool::F> UTF_32_BE     = { W("UTF-32-BE") 	, NO_BOM       , Endian(Endian::BIG)           , 4};
+		const EncodingBase<13, Bool::T> UTF_32_BE_BOM = { W("UTF-32-BE-BOM"), BOM_UTF_32_BE, Endian(Endian::BIG)           , 4};
+		const EncodingBase< 9, Bool::F> UTF_32_LE     = { W("UTF-32-LE") 	, NO_BOM       , Endian(Endian::LITTLE)        , 4};
+		const EncodingBase<13, Bool::T> UTF_32_LE_BOM = { W("UTF-32-LE-BOM"), BOM_UTF_32_LE, Endian(Endian::LITTLE)        , 4};
 			}; // namespace cpplib
 } // namespace pensar_digital
 
