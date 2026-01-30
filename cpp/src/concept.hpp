@@ -272,7 +272,23 @@ namespace pensar_digital
 		template<typename T>
 		concept StdLayoutTriviallyCopyableNoPadding = StdLayoutTriviallyCopyable<T> && NoPadding<T>;
 		// Memcpyasble concept. Requires a function data() returning something convertible to void*. Usually a pointer to std::byte. And a data_size() returning something convertible to size_t.
-
+        
+		template<typename T>
+            concept IntegerLike =
+            std::is_integral_v<T> &&
+            !std::is_same_v<T, bool>;
+        
+		template<typename T>
+    		concept WireSafe =
+        	std::is_trivially_copyable_v<T> &&
+        	std::has_unique_object_representations_v<T>;
+		
+		template<typename T>
+    		concept IEEE754Binary =
+        	std::is_floating_point_v<T> &&
+        	std::numeric_limits<T>::is_iec559 &&
+        	(sizeof(T) == 4 || sizeof(T) == 8);
+			
 		template <typename T>
 		concept HasStdLayoutTriviallyCopyableData = requires (T t)
 		{

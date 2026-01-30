@@ -10,7 +10,8 @@
 #include "../file.hpp"
 #include "../binary_buffer.hpp"
 #include "../test/dummy.hpp"
-#include "../double64.hpp"
+#include "../wire_double.hpp"
+#include "../wire_int.hpp"
 #include "../span_util.hpp"
 
 namespace pensar_digital
@@ -23,8 +24,8 @@ namespace pensar_digital
         {
             struct DataType
             {
-                Double64 b;
-                int64_t a;
+                WireDouble b;
+                WireInt64 a;
             };
 
             DataType mdata{};
@@ -126,8 +127,8 @@ namespace pensar_digital
             TEST_END(ObjectBinaryFileStreaming2)
 
             TEST(ObjectAssigns, true)
-                AssignMoveBlob a{ { Double64(2.5), 1 } };
-                AssignMoveBlob b{ { Double64(9.5), 7 } };
+                AssignMoveBlob a{ { WireDouble(2.5), WireInt64(1) } };
+                AssignMoveBlob b{ { WireDouble(9.5), WireInt64(7) } };
 
                 assigns(b, a);
 
@@ -136,8 +137,8 @@ namespace pensar_digital
             TEST_END(ObjectAssigns)
 
             TEST(ObjectMoves, true)
-                AssignMoveBlob a{ { Double64(4.25), 3 } };
-                AssignMoveBlob b{ { Double64(9.75), 8 } };
+                AssignMoveBlob a{ { WireDouble(4.25), WireInt64(3) } };
+                AssignMoveBlob b{ { WireDouble(9.75), WireInt64(8) } };
 
                 moves(b, a);
 

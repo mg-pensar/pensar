@@ -1,45 +1,61 @@
 #ifndef ENDIAN_HPP
 #define ENDIAN_HPP
 
-#include "concept.hpp"
-#include <cstdint>
 #include <bit>
+#include <cstdint>
+#include <type_traits>
 
-namespace pensar_digital
+namespace pensar_digital::cpplib
 {
-	namespace cpplib
-	{
-		struct Endian;
+    struct Endian
+    {
+        using value_type = int8_t;
 
-		// Endian has 4 int_fast8_t values: UNKNOWN = -1, LITTLE = std::endian::little, BIG = std::endian::big, NATIVE = std::endian::native.
-		struct Endian
-		{
-			int8_t _value;
+        value_type value{UNKNOWN};
 
-			static const int8_t NOT_APPLICABLE = -2;
-			static const int8_t UNKNOWN        = -1;
-			static const int8_t LITTLE         = static_cast<int8_t> (std::endian::little);
-			static const int8_t BIG            = static_cast<int8_t> (std::endian::big   );
-			static const int8_t NATIVE         = static_cast<int8_t> (std::endian::native);
+        // Stable, library-defined values
+        static constexpr value_type NOT_APPLICABLE = -2;
+        static constexpr value_type UNKNOWN        = -1;
+        static constexpr value_type LITTLE         =  0;
+        static constexpr value_type BIG            =  1;
+        static constexpr value_type NATIVE         =
+            (std::endian::native == std::endian::little) ? LITTLE :
+            (std::endian::native == std::endian::big   ) ? BIG    :
+                                                           UNKNOWN;
 
-			// Default constructor
-			Endian() = default;
+        constexpr Endian() = default;
+        constexpr explicit Endian(value_type v) : value(v) {}
 
-			// Conversion from int_fast8_t
-			constexpr Endian (int_fast8_t value) : _value(value) {}
+        // Named constructors (recommended)
+        static constexpr Endian little() noexcept { return Endian(LITTLE); }
+        static constexpr Endian big()    noexcept { return Endian(BIG); }
+        static constexpr Endian native() noexcept { return Endian(NATIVE); }
+        static constexpr Endian unknown() noexcept { return Endian(UNKNOWN); }
 
-			// Conversion from std::endian
-			constexpr Endian (std::endian value) : _value(value == std::endian::little ? LITTLE : (value == std::endian::big ? BIG : NATIVE)) {}
+        // Queries
+        constexpr bool is_little() const noexcept { return value == LITTLE; }
+        constexpr bool is_big()    const noexcept { return value == BIG; }
+        constexpr bool is_native() const noexcept { return value == NATIVE; }
+        constexpr bool known()     const noexcept { return value >= 0; }
 
-			// Conversion to std::endian
-			constexpr operator std::endian() const { return static_cast<std::endian>(_value); }
+        // Explicit conversion (safe)
+        constexpr std::endian to_std() const noexcept
+        {
+            return value == LITTLE ? std::endian::little :
+                   value == BIG    ? std::endian::big    :
+                                      std::endian::native; // fallback
+        }
 
-			// Conversion to int_fast8_t
-			constexpr operator int_fast8_t() const { return _value; }
-		};
+        // Comparisons
+        friend constexpr bool operator==(Endian a, Endian b) noexcept
+        {
+            return a.value == b.value;
+        }
+    };
 
-		static_assert(std::is_trivially_copyable<Endian>::value, "Endian must be trivially copyable.");
-	} // namespace cpplib
-} // namespace pensar_digital
+    static_assert(std::is_trivially_copyable_v<Endian>);
+    static_assert(sizeof(Endian) == 1);
+
+} // namespace pensar_digital::cpplib
 
 #endif // ENDIAN_HPP
