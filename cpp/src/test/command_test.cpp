@@ -39,7 +39,7 @@ namespace pensar_digital
 
 					return true;
 				}
-				inline Ptr clone() const noexcept { return pd::clone<IncCmd>(*this, id()); }
+				Command::Ptr clone() const noexcept override { return pd::clone<IncCmd>(*this, id()); }
 				inline void _run() { ++value; }
 				inline void _undo() const { --value; }
 		};
@@ -71,7 +71,7 @@ namespace pensar_digital
 					return true;
 				}
 
-				virtual Ptr clone() const noexcept { return pd::clone<DecCmd>(*this, id()); }
+				Command::Ptr clone() const noexcept override { return pd::clone<DecCmd>(*this, id()); }
 
 				void _run() { --value; }
 				void _undo() const { ++value; }
@@ -102,7 +102,7 @@ namespace pensar_digital
 
 				return true;
 			}
-			virtual Ptr clone() const noexcept { return pd::clone<IncFailCmd>(*this, id()); }
+			Command::Ptr clone() const noexcept override { return pd::clone<IncFailCmd>(*this, id()); }
 
 			void _run() { throw "IncFailCmd.run () error."; }
 			void _undo() const { --value; }
@@ -135,7 +135,7 @@ namespace pensar_digital
 
 					return true;
 				}
-				virtual Ptr clone() const noexcept { return pd::clone<DoubleCmd>(*this, id()); }
+				Command::Ptr clone() const noexcept override { return pd::clone<DoubleCmd>(*this, id()); }
 				void _run() { value *= 2; }
 				void _undo() const { value /= 2; }
 		};
@@ -167,7 +167,7 @@ namespace pensar_digital
 					return true;
 				}
 
-				Ptr clone() const noexcept { return pd::clone<DoubleFailCmd>(*this, id()); }
+				Command::Ptr clone() const noexcept override { return pd::clone<DoubleFailCmd>(*this, id()); }
 				void _run() { throw "Double errors."; }
 				void _undo() const { value /= 2; }
 		};
@@ -274,46 +274,48 @@ namespace pensar_digital
 		}
 		TEST_END(CompositeCommand)
 
-		TEST(CommandBinaryFileStreaming, true)
+		TEST(CommandBinaryStreaming, true)
 			using Cmd = IncCmd;
-			std::ofstream out(W("c:\\tmp\\test\\CommandBinaryStreaming\\test.bin"), std::ios::binary);
+
 			Cmd cmd;
 			Cmd cmd2;
 			CHECK_NOT_EQ(Cmd, cmd, cmd2, W("0"));
-
-			out.close();
-
-			std::ifstream in(W("c:\\tmp\\test\\CommandBinaryStreaming\\test.bin"), std::ios::binary);
+			BinaryBuffer bb;
+			cmd.write (bb);
+			cmd2.read (bb);
 			CHECK_EQ(Cmd, cmd, cmd2, W("1"));
-			TEST_END(CommandBinaryFileStreaming)
+		TEST_END(CommandBinaryStreaming)
 
 		
-			TEST (CompositeCommandClone, true)
+		TEST (CompositeCommandClone, true)
 				using Cmd = CompositeCommand;
 				Cmd cmd;
 				Cmd cmd2;
 				CHECK_NOT_EQ(Cmd, cmd, cmd2, W("0"));
-				Cmd::Ptr cmd3 = cmd.clone();
+				Command::Ptr cmd3_base = cmd.clone();
+				Cmd::Ptr cmd3 = std::dynamic_pointer_cast<Cmd>(cmd3_base);
 				Cmd& cmd4 = *cmd3;
 				CHECK_EQ(Cmd, cmd4, cmd, W("1"));
-			TEST_END(CompositeCommandClone)
+		TEST_END(CompositeCommandClone)
 
 
-			TEST(CompositeCmdBinaryStreaming, true)
+		TEST(CompositeCmdBinaryStreaming, true)
 			using Cmd = CompositeCommand;
 
 			Cmd cmd;
+			cmd.add(new NullCommand());  // Add a concrete command
 			Cmd cmd2;
-			CHECK_NOT_EQ(Cmd, cmd, cmd2, W("0"));
-
+			// cmd2 starts empty - will be populated by read()
+			BinaryBuffer buffer;
+			// Write CompositeCommand's ClassInfo first (for polymorphic dispatch)
+			// then the rest via cmd.write()
+			cmd.write(buffer);
+			// Read: first read ClassInfo to identify type
+			ClassInfo info;
+			buffer.read(std::span<std::byte>((std::byte*)&info, sizeof(ClassInfo)));
+			// Then read the rest
+			cmd2.read(buffer);
 			CHECK_EQ(Cmd, cmd2, cmd, W("1"));
-
-
-			//Cmd::Factory::P p3 = buffer.CreateAndAddObj();
-			//Cmd::Factory::P p4 = nullptr;
-			//buffer.read_obj(&p4);
-			//CHECK_EQ(Cmd, *p4, *p3, "2");
 		TEST_END(CompositeCmdBinaryStreaming)
-
 	}
 }

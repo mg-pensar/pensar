@@ -4,19 +4,6 @@
 #ifndef OBJECT_HPP
 #define OBJECT_HPP
 
-#include "data.hpp"
-#include "constant.hpp"
-#include "s.hpp"
-#include "clone_util.hpp"
-
-#include "factory.hpp"
-#include "log.hpp"
-#include "string_def.hpp"
-#include "equal.hpp"
-
-#include "concept.hpp"
-
-#include "class_info.hpp"
 
 #include <sstream>
 #include <iostream>
@@ -29,8 +16,19 @@
 #include <cstddef>
 #include <bit>
 #include <cstring>
-
 #include <bit> // for std::byteswap
+
+#include "data.hpp"
+#include "constant.hpp"
+#include "s.hpp"
+#include "clone_util.hpp"
+#include "factory.hpp"
+#include "log.hpp"
+#include "string_def.hpp"
+#include "equal.hpp"
+#include "concept.hpp"
+#include "class_info.hpp"
+#include "binary_buffer.hpp"
 
 namespace pensar_digital
 {
@@ -114,7 +112,7 @@ namespace pensar_digital
             struct Data : public pd::Data
             {                
                 Id mid;         //!< Unique id (among objects of the same class).
-                Data(const Id& id = NULL_ID) noexcept : mid(id) {}
+                Data(const Id& id = NULL_ID) noexcept : mid(id) {}               
             };
             static_assert(TriviallyCopyable<Data>, "Data must be a trivially copyable type");
 			static_assert(StandardLayout<Data>, "Data must be a standard layout type");
@@ -131,15 +129,11 @@ namespace pensar_digital
             inline virtual const pd::Data* get_null_data() const noexcept { return (pd::Data*)(&NULL_DATA); }
 
             using FactoryType = Factory;
-            inline const BytePtr object_data_bytes() const noexcept { return (BytePtr)&mdata; }
-            inline const size_t object_data_size() const noexcept { return sizeof(mdata); }
-
-            virtual const pd::Data* data() const noexcept { return &this->mdata; }
-            virtual const BytePtr data_bytes() const noexcept { return (BytePtr)&this->mdata; }
-
+ 
             inline static constexpr size_t DATA_SIZE = sizeof(mdata);
             inline static constexpr size_t      SIZE = DATA_SIZE + sizeof(ClassInfo);
 
+            virtual const pd::Data* data() const noexcept { return &this->mdata; }
             virtual size_t data_size() const noexcept { return DATA_SIZE; }
             virtual size_t size     () const noexcept { return SIZE     ; }
         protected:
@@ -172,21 +166,43 @@ namespace pensar_digital
             /** Default destructor */
             virtual ~Object() = default;
 
-            inline std::span<const std::byte> bytes() const noexcept 
+            inline ConstByteSpan data_bytes () const noexcept 
             {
-                return std::as_bytes(std::span{ data(), data_size() });
+                return std::as_bytes(std::span{(BytePtr) data(), data_size() });
             }
             
             /// \brief Uses std::as_writable_bytes to get a span of writable bytes from the object.
-            inline std::span<std::byte> wbytes() noexcept
+            inline ByteSpan data_wbytes() noexcept
             {
                 static_assert (sizeof(char) == sizeof(std::byte));
 
-                auto byte_span = std::span<std::byte>((std::byte*)(data()), data_size());
-
+                auto byte_span = ByteSpan((std::byte*)(data()), data_size());
                 return std::as_writable_bytes(byte_span);
             }
 
+            inline virtual BinaryBuffer& write (BinaryBuffer& bb) const noexcept
+            {
+                // Add INFO.bytes and data_bytes together
+                bb.write (INFO.bytes () );
+                bb.write (std::span<const std::byte>((const std::byte*)&mdata, DATA_SIZE));
+                return bb;                  
+            }
+
+            inline virtual BinaryBuffer& read (BinaryBuffer& bb) noexcept
+            {
+                // Read ClassInfo first and verify
+                ClassInfo info;
+                bb.read(std::span<std::byte>((std::byte*)&info, sizeof(ClassInfo)));
+                if (info != INFO)
+                {
+                    LOG(W("ClassInfo mismatch in Object::read"));
+                    return bb;
+                }
+                // Read data bytes
+                auto byte_span = ByteSpan((std::byte*)(&mdata), DATA_SIZE);
+               return bb.read(byte_span);
+            }
+                       
             inline virtual std::string sclass_name() const
             {
                 std::string s = typeid(*this).name();

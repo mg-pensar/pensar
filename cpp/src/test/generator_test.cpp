@@ -3,8 +3,9 @@
 #include "../../../unit_test/src/test.hpp"
 
 #include "../generator.hpp"
-
+#include "../io_util.hpp"
 #include "../concept.hpp"
+#include "../binary_buffer.hpp"
 
 #include <sstream>
 
@@ -75,27 +76,29 @@ namespace pensar_digital
             G g;
 		    G g2 (1);
 		    CHECK_NOT_EQ(G, g2, g, W("0"));
+		    BinaryBuffer bb;
+		    bb.write(g);
+		    g2.read(bb);
 		    CHECK_EQ(G, g2, g, W("1"));
 		TEST_END(GeneratorSerialization)
 	
         TEST(GeneratorFileBinaryStreaming, true)
-            std::ofstream out(W("c:\\tmp\\test\\GeneratorFileBinaryStreaming\\file_binary_streaming_test.bin"), std::ios::binary);
+            Path test_dir = test::Test::test_dir () / W("GeneratorFileBinaryStreaming/");
+            test_dir.create_dir ();
+            Path out = test_dir / Path (W("file_binary_streaming_test.bin"));
             typedef Generator<Object> G;
-            typedef std::shared_ptr<G> GP;
             G g(1);
-            out.close ();
-            out.flush ();
+            BinaryBuffer bb;
+            bb.write (g);
+            bb.save_to_file (out.s ());
 
-            std::ifstream  in(W("c:\\tmp\\test\\GeneratorFileBinaryStreaming\\file_binary_streaming_test.bin"), std::ios::binary);
-            GP pg2 = G::get (1);
-            in.close();
-            G g3(3);
-            CHECK_NOT_EQ(G, g3, g, W("0"));
-            CHECK_EQ(G, *pg2, g, W("1"));
-            CHECK_EQ(VersionInt, pg2->INFO.mpublic_interface_version, 2, W("2"));
-            CHECK_EQ(VersionInt, pg2->INFO.mprotected_interface_version, 1, W("3"));
-            CHECK_EQ(VersionInt, pg2->INFO.mprivate_interface_version, 1, W("4"));
+            G g2(2);
+            CHECK_NOT_EQ(G, g, g2, W("0"));
 
+            // Load from file
+            bb.load_from_file (out.s ());
+            g2.read (bb);
+            CHECK_EQ(G, g, g2, W("1"));
         TEST_END(GeneratorFileBinaryStreaming)
 
         TEST(GeneratorBinaryStreaming, true)
@@ -111,12 +114,16 @@ namespace pensar_digital
             
             //G::Factory::P p = G::get (1, 0, 1);
             G g(1);
- 
+            BinaryBuffer bb;
+            bb.write (g);
             G g2;
             CHECK_NOT_EQ(G, g2, g, W("0"));
+            bb.read (g2);
             CHECK_EQ(G, g2, g, "1");
             
           TEST_END(GeneratorBinaryStreaming)
         
     }
 }
+
+

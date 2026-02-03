@@ -98,9 +98,9 @@ namespace pensar_digital
             /// Tests run calling this method.
             virtual bool run () = 0;
 
-            S get_name () const { return name; }
-			Path test_dir () const { return _test_dir; }
-            void set_name (const S& a_name) { name = a_name; }
+            inline S get_name () const { return name; }
+			inline Path test_dir () const { return _test_dir; }
+            inline void set_name (const S& a_name) { name = a_name; }
 
             // Specialization for floating-point types
             template <std::floating_point T>

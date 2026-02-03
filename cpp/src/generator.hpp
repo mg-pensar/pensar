@@ -57,7 +57,7 @@ namespace pensar_digital
               Data(T initial_value = 0, T step = 1) : minitial_value(initial_value), mvalue(initial_value), mstep(step) {}
           }; // struct Data
           Data mdata;
-   
+          static_assert(WireSafe<Data>, "Data must be a WireSafe type");
           public:
 
             inline static const ClassInfo INFO = { CPPLIB_NAMESPACE, W("Generator"), 2, 1, 1 };
@@ -69,7 +69,7 @@ namespace pensar_digital
           inline const   pd::Data* generator_data     () const noexcept { return &mdata   ; }
           virtual const pd::Data* data() const noexcept { return &mdata; }
 		  virtual size_t data_size() const noexcept { return DATA_SIZE; }
-          virtual const BytePtr data_bytes() const noexcept { return (BytePtr)&mdata; }
+          
 		  inline const BytePtr generator_data_bytes() const noexcept { return (BytePtr)&mdata; }
 		  inline static const Data NULL_DATA = { null_value<T>(), null_value<T>() }; //!< Null data.
           inline virtual pd::Data* get_null_data() const noexcept { return (pd::Data*)(&NULL_DATA); }
@@ -104,6 +104,33 @@ namespace pensar_digital
                 return ok;
             }
             
+           inline virtual BinaryBuffer&write (BinaryBuffer& bb) const noexcept
+            {
+                // Add Object part
+                Object::write(bb);
+                // Add INFO.bytes and data_bytes together
+                bb.write(INFO.bytes());
+                bb.write(data_bytes());
+                return bb;                  
+            }
+
+            inline virtual BinaryBuffer& read (BinaryBuffer& bb) noexcept
+            {
+                // Read Object part
+                Object::read(bb);
+
+                // Read ClassInfo first and verify
+                ClassInfo info;
+                bb.read(std::span<std::byte>((std::byte*)&info, sizeof(ClassInfo)));
+                if (info != INFO)
+                {
+                    LOG(W("ClassInfo mismatch in Generator::read"));
+                    return bb;
+                }
+                // Read data bytes
+                return bb.read(data_wbytes());
+            }
+           
             /// \brief Create a new Generator using the factory method.
 
             /// \brief Set value. Next call to get will get value + 1.

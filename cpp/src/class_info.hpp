@@ -37,6 +37,13 @@ namespace pensar_digital
                 return !equal<ClassInfo>(*this, other);
             }
 
+            inline const S full_class_name () const noexcept
+            {
+                SStream ss;
+                ss << mnamespace << W("::") << mclass_name;
+                return ss.str();
+            }
+
              inline const S to_s() const noexcept
             {
                 SStream ss;
@@ -46,7 +53,25 @@ namespace pensar_digital
                     << W(".") << mprivate_interface_version;
                 return ss.str();
             }
+
+            // implicit conversion to string
+            inline operator S () const noexcept
+            {
+                return full_class_name ();
+            }
+
+            inline std::span<const std::byte> bytes () const noexcept 
+            {
+                return std::span<const std::byte>(reinterpret_cast<const std::byte*>(this), sizeof(ClassInfo));
+            }
+            
+            /// \brief Uses std::as_writable_bytes to get a span of writable bytes from the object.
+            inline std::span<std::byte> wbytes() noexcept
+            {
+                return std::span<std::byte>(reinterpret_cast<std::byte*>(this), sizeof(ClassInfo));
+            }
         };
+
 
         // concept HasClassInfo 
         template <typename T>

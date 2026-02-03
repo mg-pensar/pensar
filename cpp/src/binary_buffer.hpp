@@ -17,16 +17,20 @@ namespace pensar_digital
 {
     namespace cpplib
     {
+        class BinaryBuffer;
+
         // ---------------------------------------------------------------------------
         // Concept: BinarySerializable
         // ---------------------------------------------------------------------------
-        // Ensures the type T has a bytes() method returning a span of const byte.
-        // Also ensures the type is safe for raw memory operations.
+        // Ensures the type T has a BinaryBuffer& write (BinaryBuffer& bb) const noexcept
+        // and a BinaryBuffer& read (BinaryBuffer& bb) noexcept methods.
         // ---------------------------------------------------------------------------
         template <typename T>
-        concept BinarySerializable = requires(const T& t) {
-            { t.bytes() } -> std::convertible_to<std::span<const std::byte>>;
-            requires std::is_trivially_copyable_v<T>;
+        concept BinaryBufferIO 
+            = requires (T t, BinaryBuffer& bb)
+        {
+            { t.write(bb) } -> std::same_as<BinaryBuffer&>;
+            { t.read(bb) }  -> std::same_as<BinaryBuffer&>;
         };
 
         // ---------------------------------------------------------------------------
@@ -80,20 +84,20 @@ namespace pensar_digital
             }
 
             // Overload for writable byte spans to avoid POD overload selection.
-            auto write(this auto&& self, std::span<std::byte> src) -> decltype(auto) {
-                return self.write(std::span<const std::byte>(src.data(), src.size()));
+            auto write(std::span<std::byte> src) -> decltype(auto) {
+                return write(std::span<const std::byte>(src.data(), src.size()));
             }
 
-            // Write any object that satisfies BinarySerializable (e.g., your Person class)
-            template <BinarySerializable T>
-            auto write(this auto&& self, const T& obj) -> decltype(auto) {
-                return self.write(obj.bytes());
+            // Write any object that satisfies BinaryBufferIO
+            template <BinaryBufferIO T>
+            auto write(this auto&& self, T& obj) -> decltype(auto) {
+                return obj.write(self);
             }
 
             // Fallback for trivial types (int, float, etc.) that don't have .bytes()
             template <typename T>
             auto write(this auto&& self, const T& pod) -> decltype(auto) 
-                requires std::is_trivially_copyable_v<T> && (!BinarySerializable<T>) &&
+                requires std::is_trivially_copyable_v<T> && (!BinaryBufferIO<T>) &&
                          (!std::is_same_v<std::remove_cvref_t<T>, std::span<std::byte>>) &&
                          (!std::is_same_v<std::remove_cvref_t<T>, std::span<const std::byte>>)
             {
@@ -168,17 +172,16 @@ namespace pensar_digital
 
             // Read into a BinarySerializable object
             // Note: This overwrites the memory of 'obj'.
-            template <BinarySerializable T>
-            auto read(this auto&& self, T& obj) -> decltype(auto) {
-                // View the object as a writable byte span
-                auto dest_span = std::as_writable_bytes(std::span{ &obj, 1 });
-                return self.read(dest_span);
+            template <BinaryBufferIO T>
+            auto read(this auto&& self, T& obj) -> decltype(auto) 
+            {
+                return obj.read(self);
             }
 
             // Read into a trivial type (int, float, etc.)
             template <typename T>
             auto read(this auto&& self, T& pod) -> decltype(auto) 
-                requires std::is_trivially_copyable_v<T> && (!BinarySerializable<T>) &&
+                requires std::is_trivially_copyable_v<T> && (!BinaryBufferIO<T>) &&
                          (!std::is_same_v<std::remove_cvref_t<T>, std::span<std::byte>>) &&
                          (!std::is_same_v<std::remove_cvref_t<T>, std::span<const std::byte>>)
             {

@@ -225,7 +225,23 @@ namespace pensar_digital
 		template <typename T>
 		concept BinaryStreamable = CharCastable<T> && Sizeofable<T> && Streamable<T>;
 
+		// ConstByteSpanConvertible concept requires a public method bytes() returning something convertible to std::span<const std::byte>.
+		template <typename T>
+		concept ConstByteSpanConvertible = requires (T t)
+		{
+			{ t.bytes() } -> std::convertible_to<std::span<const std::byte>>;
+		};
 
+		// WritableByteSpanConvertible concept requires a public method wbytes() returning something convertible to std::span<std::byte>.
+		template <typename T>
+		concept WritableByteSpanConvertible = requires (T t)
+		{
+			{ t.wbytes() } -> std::convertible_to<std::span<std::byte>>;
+		};
+		// ByteSpanConvertible concept requires ConstByteSpanConvertible and WritableByteSpanConvertible.
+		template <typename T>
+		concept ByteSpanConvertible = ConstByteSpanConvertible<T> && WritableByteSpanConvertible<T>;
+		
 		// BinaryReadable concept requires a public method read (std::span<std::byte>& bytes) returning something convertible to T&.
 		template <typename T>
 		concept BinaryReadable = requires(T t, std::span<std::byte>& bytes) { { t.read (bytes) } -> std::convertible_to<void>; };

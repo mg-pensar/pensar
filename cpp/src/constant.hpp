@@ -77,7 +77,8 @@ namespace pensar_digital
         using Byte     = std::byte;  
         using Bytes    = std::vector<Byte>;  
         using BytePtr  = Byte*;  
-        using ByteSpan = std::span<Byte>;  
+        using ByteSpan = std::span<Byte>;
+        using ConstByteSpan = std::span<const Byte>;  
         inline const bool PAD_RIGHT = true;
         inline const bool PAD_LEFT = false;
         inline const bool TRIM_ELEMENTS = true;

@@ -91,6 +91,42 @@ namespace pensar_digital
             return buffer;
         }
 
+        template<WritableByteSpanConvertible T>
+        inline std::expected<void, std::string_view> load_from_file(std::string_view filename, T& t) 
+        {
+            FILE* f = fopen(std::string(filename).c_str(), "rb");
+            if (!f) return std::unexpected("Failed to open file for reading");
+
+            // Get file size
+            fseek(f, 0, SEEK_END);
+            long file_size = ftell(f);
+            fseek(f, 0, SEEK_SET);
+
+            if (file_size < 0) 
+            {
+                fclose(f);
+                return std::unexpected("Could not determine file size");
+            }
+
+            auto out_span = t.wbytes()  ;
+            if (out_span.size() < static_cast<size_t>(file_size)) 
+            {
+                fclose(f);
+                return std::unexpected("Output span is too small to hold file contents");
+            }
+
+            // Read bytes
+            size_t read_bytes = fread(out_span.data(), sizeof(std::byte), static_cast<size_t>(file_size), f);
+            fclose(f);
+
+            if (read_bytes != static_cast<size_t>(file_size)) 
+            {
+                return std::unexpected("Read mismatch: read less bytes than expected");
+            }
+
+            return {};
+        }
+
 
     }  // namespace cpplib
 }  // namespace pensar_digital

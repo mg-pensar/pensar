@@ -17,11 +17,12 @@ namespace pensar_digital
             return factory.get(args...);
         }
 
-        // CloneableConcept any class T with a T::Ptr clone (); method. where T::Ptr is a shared_ptr <T>.
+        // CloneableConcept any class T with a clone() method returning a shared_ptr.
 		template <typename T>
 		concept CloneableConcept = requires (T t)
 		{
-			{ t.clone() } -> std::convertible_to<typename T::Ptr>;
+			{ t.clone() };
+			requires requires { typename decltype(t.clone())::element_type; }; // Must be a smart pointer
 		};
 
 	} // namespace cpplib

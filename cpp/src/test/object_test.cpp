@@ -52,23 +52,23 @@ namespace pensar_digital
         TEST(ObjectSerialization, true)
             auto o = pd::Object::get(42);
             BinaryBuffer bb;
-            bb.write (o->bytes());
+            o->write (bb);
 
 			auto o1 = pd::Object::get();
 			CHECK_NOT_EQ(Object, *o, *o1, W("0. o == o1"));
 
-			bb.read (o1->wbytes());
+			o1->read (bb);
 			CHECK_EQ(Object, *o, *o1, W("1. o != o1"));
 
          TEST_END(ObjectSerialization)
             
          TEST(ObjectBinaryFileStreaming, true)
 			// Creates a vector with 1000 objects
-			std::vector<Object::Ptr> objects;
+			std::vector<Object::Ptr> objects(0);
 		    const Id N = 1000; 
             for (Id i = 0; i < N; i++)
             {
-				objects.push_back(pd::Object::get(i));
+				objects.emplace_back (pd::Object::get(i));
 			}
             Path file = test_dir () / W("ObjectBinaryFileStreaming/");
             file.create_dir ();
@@ -77,7 +77,7 @@ namespace pensar_digital
 
             for (Id i = 0; i < N; i++)
             {
-				bb.write (objects[i]->bytes());
+				objects[i]->write (bb);
             }
 
             bb.save_to_file(file.s ());
@@ -88,9 +88,9 @@ namespace pensar_digital
             for (Id i = 0; i < N; i++)
             {
 				Object::Ptr o = pd::Object::get();
-                bb.read (o->wbytes());
-                Object::Ptr o1 = pd::Object::get(i);
-                CHECK_EQ(Object, *o, *o1, pd::to_string(i));
+                o->read (bb);
+                
+                CHECK_EQ(Object, *o, *objects[i], pd::to_string(i));
             }
             TEST_END(ObjectBinaryFileStreaming)
 
