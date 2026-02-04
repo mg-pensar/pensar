@@ -293,16 +293,16 @@ namespace pensar_digital
             using Factory = pd::Factory<CompositeCommand, Id>;
             using Int = int_fast8_t;
             inline static const ClassInfo INFO = { CPPLIB_NAMESPACE, W("CompositeCommand"), 2, 1, 1 };
-            inline virtual const ClassInfo* info_ptr() const noexcept { return &INFO; }
+            inline virtual const ClassInfo* info_ptr() const noexcept override { return &INFO; }
 
             using FactoryType = Factory;
 
-            virtual const pd::Data* data() const noexcept { return &mdata; }
+            virtual const pd::Data* data() const noexcept override { return &mdata; }
 
             inline static constexpr size_t DATA_SIZE = sizeof(mdata);
 
-            virtual size_t data_size() const noexcept { return sizeof(mdata); }
-            virtual size_t size() const noexcept 
+            virtual size_t data_size() const noexcept override { return sizeof(mdata); }
+            virtual size_t size() const noexcept override 
             {
                 size_t size = sizeof(mdata.mindex) + sizeof(ClassInfo);
                 for (Int i = 0; i < mdata.mindex; ++i)
