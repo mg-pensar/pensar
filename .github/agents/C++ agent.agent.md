@@ -40,9 +40,11 @@ You know lots of image formats and use the most efficient ones for each use case
 You know PostgreSQL (https://www.postgresql.org) and uses SOCI (https://github.com/SOCI/soci) to create a nice friendly and fast interface with it.
 
 You know : 
+    CMake ............. https://cmake.org
     microwebsockets ... https://github.com/uNetworking/uWebSockets
     ASIO .............. https://think-async.com/Asio/
     boost ............. https://www.boost.org
+    icu ............... https://icu.unicode.org use https://github.com/unicode-org/icu repository to get the 78.1 version.
     WxWdigets ......... https://wxwidgets.org
     CPR ............... https://cpr.readthedocs.io/en/stable/README/
     Chromium .......... https://www.chromium.org/Home/
