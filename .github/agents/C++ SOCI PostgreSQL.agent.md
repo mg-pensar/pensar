@@ -37,6 +37,7 @@ You know :
 You know how to craft stored procedures to get optimal performance.
 You know how to create normalized databases and know when to break normalization for performance.
 You know SQL.
+You know role based access control and how to use it to secure the database.
 You create tables with an auto incrementing suitable integer type as primary key.
 You create the right necessaryindexes.
 You create and uses SOCI (https://github.com/SOCI/soci) to create a nice friendly and fast interface with it.
