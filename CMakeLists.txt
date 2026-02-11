@@ -8,7 +8,16 @@ FetchContent_Declare(
   GIT_REPOSITORY https://github.com/catchorg/Catch2.git
   GIT_TAG        v3.7.1
 )
-FetchContent_MakeAvailable(Catch2)
+
+FetchContent_Declare(
+  asio
+  GIT_REPOSITORY https://github.com/chriskohlhoff/asio.git
+  GIT_TAG        asio-1-32-0
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND ""
+)
+
+FetchContent_MakeAvailable(Catch2 asio)
 list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
 include(Catch)
 
@@ -68,6 +77,11 @@ target_include_directories(pensar_tests PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/cpp/src"
     "${CMAKE_CURRENT_SOURCE_DIR}/cpp/src/test"
     "${ICU_INCLUDE_DIR}"
+    "${asio_SOURCE_DIR}/asio/include"
+)
+
+target_compile_definitions(pensar_tests PRIVATE
+    ASIO_STANDALONE
 )
 
 target_link_libraries(pensar_tests PRIVATE

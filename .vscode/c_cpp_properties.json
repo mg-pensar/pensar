@@ -6,9 +6,12 @@
                 "${workspaceFolder}/cpp/src",
                 "${workspaceFolder}/cpp/src/test",
                 "${workspaceFolder}/unit_test/src",
-                "/Users/mg/.conan2/p/**/p/include"
+                "/Users/mg/.conan2/p/**/p/include",
+                "${workspaceFolder}/build/_deps/asio-src/asio/include"
             ],
-            "defines": [],
+            "defines": [
+                "ASIO_STANDALONE"
+            ],
             "macFrameworkPath": [],
             "compilerPath": "/usr/bin/clang++",
             "cStandard": "c17",
