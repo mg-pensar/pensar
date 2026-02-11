@@ -29,6 +29,19 @@
             "dependsOn": [
                 "cmake-configure"
             ]
+        },
+        {
+            "label": "run-tests",
+            "type": "shell",
+            "command": "cd ${workspaceFolder}/build && ctest --output-on-failure -j$(sysctl -n hw.logicalcpu)",
+            "problemMatcher": [],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "dependsOn": [
+                "build-tests"
+            ]
         }
     ]
 }
