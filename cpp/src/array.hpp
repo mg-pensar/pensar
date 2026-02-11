@@ -6,9 +6,6 @@
 
 #include "concept.hpp"
 
-#include "equal.hpp"
-#include "s.hpp"
-
 #include "code_util.hpp"
 
 #include <limits>

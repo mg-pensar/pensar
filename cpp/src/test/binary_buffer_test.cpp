@@ -1,7 +1,8 @@
 // author : Mauricio Gomes
 // license: MIT (https://opensource.org/licenses/MIT)
 
-#include "../../../unit_test/src/test.hpp"
+#include <catch2/catch_test_macros.hpp>
+
 #include "../constant.hpp"
 #include "../string_def.hpp"
 #include "../cs.hpp"
@@ -11,26 +12,19 @@
 
 #include <span>
 
-
-namespace pensar_digital
+namespace pensar_digital::cpplib
 {
-    using namespace pensar_digital::unit_test;
-    namespace cpplib
+    TEST_CASE("BinaryBuffer", "[binary_buffer]")
     {
-        
-        TEST(BinaryBuffer, true)
-            BinaryBuffer buffer;
+        BinaryBuffer buffer;
 
-            auto o = pd::Object::get(42);
-            o->write (buffer);
+        auto o = pd::Object::get(42);
+        o->write(buffer);
 
-            pd::Object::Ptr o2 = pd::Object::get();
-            o2->read (buffer);
+        pd::Object::Ptr o2 = pd::Object::get();
+        o2->read(buffer);
 
-            CHECK_EQ(Object, *o, *o2, W("0"));
-
-        TEST_END(BinaryBuffer)
-
-
+        INFO(W("0"));
+        CHECK(*o == *o2);
     }
 }

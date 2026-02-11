@@ -1,47 +1,38 @@
 // author : Mauricio Gomes
 // license: MIT (https://opensource.org/licenses/MIT)
 
-#include "../../../unit_test/src/test.hpp"
+#include <catch2/catch_test_macros.hpp>
+
 #include "../file.hpp"
 
-namespace pensar_digital
+namespace pensar_digital::cpplib
 {
-    namespace test = pensar_digital::unit_test;
-    using namespace pensar_digital::unit_test;
-    namespace cpplib
+    TEST_CASE("RandomFileNameGenerator", "[file]")
     {
-        TEST(RandomFileNameGenerator, true)
-            RandomFileNameGenerator r;
-            Path p = r ();
-            CHECK_EQ(Path, p.parent_path(), TMP_PATH.copy_without_trailing_separator(), W("0"));
-            S filename = p.filename_only().str();
-            CHECK_EQ(S, p.extension(), W(".txt"), W("1"));
-            CHECK_EQ(size_t, filename.length (), 8, W("2"));
-            CHECK(filename.find_first_not_of (W("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")) == S::npos, W("3"));
-            
-            // Check if it does not start with a number.
-            CHECK(filename.find_first_of (W("0123456789")) != 0, W("4"));
+        RandomFileNameGenerator r;
+        Path p = r();
+        INFO(W("0")); CHECK(p.parent_path() == TMP_PATH.copy_without_trailing_separator());
+        S filename = p.filename_only().str();
+        INFO(W("1")); CHECK(p.extension() == W(".txt"));
+        INFO(W("2")); CHECK(filename.length() == 8);
+        INFO(W("3")); CHECK(filename.find_first_not_of(W("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")) == S::npos);
+        // Check if it does not start with a number.
+        INFO(W("4")); CHECK(filename.find_first_of(W("0123456789")) != 0);
+    }
 
+    TEST_CASE("TextFile", "[file]")
+    {
+        Path p;
+        {
+            p = TMP_PATH / W("text-file-test.txt");
+            TmpTextFile file(p, W("blah"));
+            p = file.fullpath();
 
-	
-        TEST_END(RandomFileNameGenerator)
-
-        TEST(TextFile, true)
-            Path p;
-            {
-                p = TMP_PATH / W("text-file-test.txt");
-                TmpTextFile file(p, W("blah"));
-                p = file.fullpath ();
-            
-                // Checks if file exists.
-                CHECK(file.exists(), W("0"));
-                S s = file.read();
-                CHECK_EQ(S, s, W("blah"), W("1"));
-
-				// Deletes the file.
-                CHECK(file.remove(), W("2"));
-            }   
-            CHECK(! p.exists(), W("0"));
-        TEST_END(TextFile)
+            INFO(W("0")); CHECK(file.exists());
+            S s = file.read();
+            INFO(W("1")); CHECK(s == W("blah"));
+            INFO(W("2")); CHECK(file.remove());
+        }
+        INFO(W("0")); CHECK(!p.exists());
     }
 }

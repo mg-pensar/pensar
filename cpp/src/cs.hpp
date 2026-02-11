@@ -9,6 +9,7 @@
 #include <iostream>
 #include <sstream>
 
+#include "constant.hpp"
 #include "string_def.hpp"
 
 namespace pensar_digital

@@ -1,46 +1,38 @@
 // author : Mauricio Gomes
 // license: MIT (https://opensource.org/licenses/MIT)
 
-#include "../../../unit_test/src/test.hpp"
-
+#include <catch2/catch_test_macros.hpp>
 
 #include "../code_util.hpp"
 
-namespace pensar_digital
+namespace pensar_digital::cpplib::code_util
 {
-	namespace test = pensar_digital::unit_test;
-	using namespace pensar_digital::unit_test;
-	namespace cpplib
-	{
-		namespace code_util
-		{
-			using R = Result<int>;
+    using R = Result<int>;
 
-			R f() { return 10; }
-			R f1() { return W("err msg"); }
+    R f() { return 10; }
+    R f1() { return W("err msg"); }
 
-			TEST(Result, true)
+    TEST_CASE("Result", "[code_util]")
+    {
+        R r = f();
+        INFO(W("0. r != 10")); CHECK((r == 10));
+        INFO(W("0. r != Bool::T")); CHECK((r.mok == Bool{Bool::T}));
 
-				R r = f ();
-				CHECK_EQ(R, r, 10, W("0. r != 10"));
-				CHECK_EQ(Bool, r.mok, Bool::T, W("0. r != Bool::T"));
+        R r1 = f1();
+        INFO("r1 must be false."); CHECK(!r1);
+        INFO(W("0. r1.merror_message != err msg")); CHECK((r1.merror_message == R::ErrorMessageType(W("err msg"))));
+        INFO(W("1. r1.mok != Bool::F")); CHECK((Bool(r1) == Bool{Bool::F}));
+    }
 
-				R r1 = f1 ();
-				CHECK (! r1, "r1 must be false.");
-				CHECK_EQ(R::ErrorMessageType, r1.merror_message, W("err msg"), W("0. r1.merror_message != err msg"));
-				CHECK_EQ(Bool, r1, Bool::F, W("1. r1.mok != Bool::F"));
+    TEST_CASE("ResultSerialization", "[code_util]")
+    {
+        using R = Result<int>;
+        R r;
 
-			TEST_END(Result)
-
-			TEST(ResultSerialization, true)
-				using R = Result<int>;
-				R r;
-	
-				R r1(0, Bool::F, R::ErrorMessageType(W("err msg")));
-				CHECK_NOT_EQ(R, r, r1, W("0. r == r1"));
-				r1 = r;
-				CHECK_EQ(R, r, r1, W("1. r != r1"));
-			TEST_END(ResultSerialization)
-		}
-	}
+        R r1(0, Bool::F, R::ErrorMessageType(W("err msg")));
+        INFO(W("0. r == r1")); CHECK(r.mok != r1.mok);
+        r1 = r;
+        INFO(W("1. r != r1")); CHECK((r == r1));
+        INFO(W("1b. r.mok != r1.mok")); CHECK((r.mok == r1.mok));
+    }
 }

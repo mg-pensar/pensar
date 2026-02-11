@@ -2,6 +2,16 @@ cmake_minimum_required(VERSION 3.20)
 
 project(Pensar LANGUAGES CXX)
 
+Include(FetchContent)
+FetchContent_Declare(
+  Catch2
+  GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+  GIT_TAG        v3.7.1
+)
+FetchContent_MakeAvailable(Catch2)
+list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
+include(Catch)
+
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -57,13 +67,16 @@ add_executable(pensar_tests ${TEST_SOURCES})
 target_include_directories(pensar_tests PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/cpp/src"
     "${CMAKE_CURRENT_SOURCE_DIR}/cpp/src/test"
-    "${CMAKE_CURRENT_SOURCE_DIR}/unit_test/src"
     "${ICU_INCLUDE_DIR}"
 )
 
 target_link_libraries(pensar_tests PRIVATE
+    Catch2::Catch2WithMain
     "${ICU_UC_LIBRARY}"
     "${ICU_I18N_LIBRARY}"
     "${ICU_DATA_LIBRARY}"
     "${ICU_IO_LIBRARY}"
 )
+
+enable_testing()
+catch_discover_tests(pensar_tests)
