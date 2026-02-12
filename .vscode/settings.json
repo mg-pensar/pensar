@@ -13,5 +13,13 @@
         "cwd": "${workspaceFolder}",
         "MIMode": "lldb",
         "stopOnEntry": false
-    }
+    },
+
+    // --- CMake Tools: default launch target ---
+    "cmake.defaultBuildTarget": "contact_tests",
+    "cmake.defaultLaunchTarget": "contact_tests",
+
+    // --- C++ TestMate: discover Catch2 test executables ---
+    "testMate.cpp.test.executables": "${workspaceFolder}/build/{pensar_tests,contact_tests}",
+    "testMate.cpp.test.workingDirectory": "${workspaceFolder}"
 }
