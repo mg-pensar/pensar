@@ -94,3 +94,32 @@ target_link_libraries(pensar_tests PRIVATE
 
 enable_testing()
 catch_discover_tests(pensar_tests)
+
+# ---------------------------------------------------------------------------
+# contact_tests — tests for the contact module (person, email, phone)
+# ---------------------------------------------------------------------------
+file(GLOB CONTACT_TEST_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/contact/test/*.cpp")
+
+add_executable(contact_tests ${CONTACT_TEST_SOURCES})
+
+target_include_directories(contact_tests PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/cpp/src"
+    "${CMAKE_CURRENT_SOURCE_DIR}/cpp/src/test"
+    "${CMAKE_CURRENT_SOURCE_DIR}/contact"
+    "${ICU_INCLUDE_DIR}"
+    "${asio_SOURCE_DIR}/asio/include"
+)
+
+target_compile_definitions(contact_tests PRIVATE
+    ASIO_STANDALONE
+)
+
+target_link_libraries(contact_tests PRIVATE
+    Catch2::Catch2WithMain
+    "${ICU_UC_LIBRARY}"
+    "${ICU_I18N_LIBRARY}"
+    "${ICU_DATA_LIBRARY}"
+    "${ICU_IO_LIBRARY}"
+)
+
+catch_discover_tests(contact_tests)

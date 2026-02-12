@@ -42,6 +42,31 @@
             "dependsOn": [
                 "build-tests"
             ]
+        },
+        {
+            "label": "build-contact-tests",
+            "type": "shell",
+            "command": "cmake --build ${workspaceFolder}/build --target contact_tests",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "dependsOn": [
+                "cmake-configure"
+            ]
+        },
+        {
+            "label": "run-contact-tests",
+            "type": "shell",
+            "command": "${workspaceFolder}/build/contact_tests --colour-mode ansi",
+            "problemMatcher": [],
+            "group": "test",
+            "dependsOn": [
+                "build-contact-tests"
+            ]
         }
     ]
 }
