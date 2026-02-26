@@ -5,7 +5,6 @@
             "includePath": [
                 "${workspaceFolder}/cpp/src",
                 "${workspaceFolder}/cpp/src/test",
-                "${workspaceFolder}/unit_test/src",
                 "/Users/mg/.conan2/p/**/p/include",
                 "${workspaceFolder}/build/_deps/asio-src/asio/include"
             ],
