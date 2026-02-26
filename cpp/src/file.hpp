@@ -659,7 +659,7 @@ namespace pensar_digital
 			}
 
             // Generates a random text file name. () operator.
-            inline Path operator() (const S& name_prefix = W(""), const S& name_suffix = W(""), const S& extension = DEFAULT_TEXT_FILE_EXTENSION, const Path& path = TMP_DIR)
+            inline Path operator() (const S& name_prefix = W(""), const S& name_suffix = W(""), const S& extension = DEFAULT_TEXT_FILE_EXTENSION, const Path& path = TMP_PATH)
             {
                 return path / (name_prefix + random_string(DEFAULT_LENGTH) + name_suffix + W(".") + get_extension());
             }

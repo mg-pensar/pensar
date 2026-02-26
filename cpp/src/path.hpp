@@ -346,8 +346,8 @@ namespace pensar_digital
 				runtime_error(W("Error setting TMP environment variable."));
             return path;
         }
-        inline static const C* TMP_DIR = W("c:\\tmp\\");
-        inline static const Path TMP_PATH = set_tmp_env_var (TMP_DIR);
+        // Use the system temp directory (cross-platform).
+        inline static const Path TMP_PATH = set_tmp_env_var();
     } // namespace cpplib
 } // namespace pensar_digital
 #endif  // PATH_HPP
