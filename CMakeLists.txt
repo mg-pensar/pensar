@@ -98,7 +98,10 @@ catch_discover_tests(pensar_tests)
 # ---------------------------------------------------------------------------
 # contact_tests — tests for the contact module (person, email, phone)
 # ---------------------------------------------------------------------------
-file(GLOB CONTACT_TEST_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/contact/test/*.cpp")
+# Separate non-DB and DB test sources so contact_tests doesn't need SOCI.
+file(GLOB CONTACT_TEST_SOURCES CONFIGURE_DEPENDS
+     "${CMAKE_CURRENT_SOURCE_DIR}/contact/test/person_test.cpp"
+     "${CMAKE_CURRENT_SOURCE_DIR}/contact/test/e-mail_test.cpp")
 
 add_executable(contact_tests ${CONTACT_TEST_SOURCES})
 
@@ -123,3 +126,50 @@ target_link_libraries(contact_tests PRIVATE
 )
 
 catch_discover_tests(contact_tests)
+
+# ---------------------------------------------------------------------------
+# contact_db_tests — integration tests for SOCI / PostgreSQL data layer
+# ---------------------------------------------------------------------------
+set(SOCI_ROOT "/opt/homebrew/opt/soci-pg" CACHE PATH "Path to SOCI install prefix")
+
+find_library(SOCI_CORE_LIBRARY       NAMES soci_core       HINTS "${SOCI_ROOT}/lib")
+find_library(SOCI_POSTGRESQL_LIBRARY NAMES soci_postgresql HINTS "${SOCI_ROOT}/lib")
+find_library(PQ_LIBRARY              NAMES pq              HINTS "/opt/homebrew/lib/postgresql@18")
+
+if(SOCI_CORE_LIBRARY AND SOCI_POSTGRESQL_LIBRARY AND PQ_LIBRARY)
+    add_executable(contact_db_tests
+        "${CMAKE_CURRENT_SOURCE_DIR}/contact/test/db_test.cpp"
+    )
+
+    target_include_directories(contact_db_tests PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/cpp/src"
+        "${CMAKE_CURRENT_SOURCE_DIR}/contact"
+        "${SOCI_ROOT}/include"
+        "/opt/homebrew/include/postgresql@18"
+    )
+
+    target_link_libraries(contact_db_tests PRIVATE
+        Catch2::Catch2WithMain
+        "${SOCI_CORE_LIBRARY}"
+        "${SOCI_POSTGRESQL_LIBRARY}"
+        "${PQ_LIBRARY}"
+    )
+
+    # Set RPATH so dynamic SOCI libs are found at runtime
+    set_target_properties(contact_db_tests PROPERTIES
+        BUILD_RPATH "${SOCI_ROOT}/lib;/opt/homebrew/lib/postgresql@18"
+    )
+
+    catch_discover_tests(contact_db_tests)
+else()
+    message(STATUS "SOCI or libpq not found — skipping contact_db_tests target")
+    if(NOT SOCI_CORE_LIBRARY)
+        message(STATUS "  SOCI_CORE_LIBRARY not found in ${SOCI_ROOT}/lib")
+    endif()
+    if(NOT SOCI_POSTGRESQL_LIBRARY)
+        message(STATUS "  SOCI_POSTGRESQL_LIBRARY not found in ${SOCI_ROOT}/lib")
+    endif()
+    if(NOT PQ_LIBRARY)
+        message(STATUS "  PQ_LIBRARY (libpq) not found")
+    endif()
+endif()
