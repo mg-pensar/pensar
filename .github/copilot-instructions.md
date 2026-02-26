@@ -16,6 +16,21 @@
 - Use `Result<T>` for error-aware return values (cpp/src/code_util.hpp) instead of exceptions in lightweight helpers.
 - Logging uses `LOG(...)` macro from cpp/src/log.hpp; default log file path is Windows-style `C:\out\log.txt`.
 
+## Multiplatform considerations
+- Code should be cross-platform; avoid platform-specific APIs unless necessary.
+- The header multiplatform.hpp provides utilities for platform detection and conditional compilation (see cpp/src/multiplatform.hpp). So platform-specific code must be in the respective platform-specific folders (cpp/src/windows, cpp/src/linux, etc.) and included via the `INCLUDE(...)` macro from cpp/src/multiplatform.hpp.
+
+Usage example can be found in cpp/src/io_util.hpp for file I/O.
+```cpp
+// Detects and includes platform-specific implementation header.
+// Examples:
+// #include "windows/io_util_windows.hpp"
+// #include "linux/io_util_linux.hpp" 
+// #include "macos/io_util_macos.hpp"
+// #include "android/io_util_android.hpp" or other platforms
+#include INCLUDE(io_util)
+```
+
 ## Deriving from `Object`
 - Define a nested `Data` type with standard layout, trivially copyable, and no padding.
 - Add `using DataType = Data;` and a `data()` accessor returning `Data*`.
