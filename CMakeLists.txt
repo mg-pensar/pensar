@@ -27,22 +27,46 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 
-option(ICU_AUTO_DETECT "Search for ICU in the Conan cache" ON)
-set(ICU_ROOT "/Users/mg/.conan2/p/icu29a6cb2d4b90f/p" CACHE PATH "Path to ICU package root (contains include/ and lib/)")
+option(ICU_AUTO_DETECT "Search for ICU in the Conan cache or system paths" ON)
+set(ICU_ROOT "" CACHE PATH "Path to ICU package root (contains include/ and lib/)")
 
+# ---------------------------------------------------------------------------
+# Cross-platform ICU detection
+# 1. If ICU_ROOT is set explicitly, use it directly.
+# 2. On Linux with system ICU packages (libicu-dev), detect /usr automatically.
+# 3. Otherwise, search the Conan 2 cache (macOS, Windows, or any platform).
+# ---------------------------------------------------------------------------
 if(NOT ICU_ROOT AND ICU_AUTO_DETECT)
-    set(_conan_root "$ENV{HOME}/.conan2")
-    if(EXISTS "${_conan_root}")
-        execute_process(
-            COMMAND /usr/bin/find "${_conan_root}" -path "*include/unicode/ucsdet.h" -print -quit
-            OUTPUT_VARIABLE _icu_header
-            OUTPUT_STRIP_TRAILING_WHITESPACE
-        )
-        if(_icu_header)
-            get_filename_component(_icu_unicode_dir "${_icu_header}" DIRECTORY)
-            get_filename_component(_icu_include_dir "${_icu_unicode_dir}" DIRECTORY)
-            get_filename_component(_icu_root "${_icu_include_dir}" DIRECTORY)
-            set(ICU_ROOT "${_icu_root}" CACHE PATH "Path to ICU package root (contains include/ and lib/)" FORCE)
+    # --- Linux system ICU from apt (libicu-dev) ---
+    if(UNIX AND NOT APPLE)
+        if(EXISTS "/usr/include/unicode/ucsdet.h")
+            set(ICU_ROOT "/usr" CACHE PATH "System ICU from libicu-dev" FORCE)
+            message(STATUS "Auto-detected system ICU at /usr")
+        endif()
+    endif()
+
+    # --- Conan 2 cache search (cross-platform) ---
+    if(NOT ICU_ROOT)
+        set(_conan_root "$ENV{HOME}/.conan2")
+        if(WIN32)
+            set(_conan_root "$ENV{USERPROFILE}/.conan2")
+        endif()
+        if(EXISTS "${_conan_root}")
+            # GLOB_RECURSE descends through all subdirs; Conan 2 layout:
+            # .conan2/p/icu<hash>/p/include/unicode/ucsdet.h
+            file(GLOB_RECURSE _icu_headers "${_conan_root}/p/icu*/p/include/unicode/ucsdet.h")
+            if(NOT _icu_headers)
+                # Fallback: broader search in case Conan layout varies
+                file(GLOB_RECURSE _icu_headers "${_conan_root}/p/*/include/unicode/ucsdet.h")
+            endif()
+            if(_icu_headers)
+                list(GET _icu_headers 0 _icu_header)
+                get_filename_component(_icu_unicode_dir "${_icu_header}" DIRECTORY)
+                get_filename_component(_icu_include_dir "${_icu_unicode_dir}" DIRECTORY)
+                get_filename_component(_icu_root "${_icu_include_dir}" DIRECTORY)
+                set(ICU_ROOT "${_icu_root}" CACHE PATH "Path to ICU root (auto-detected from Conan cache)" FORCE)
+                message(STATUS "Auto-detected ICU_ROOT from Conan cache: ${ICU_ROOT}")
+            endif()
         endif()
     endif()
 endif()
@@ -53,17 +77,19 @@ if(ICU_ROOT)
 endif()
 
 if(NOT ICU_INCLUDE_DIR OR NOT EXISTS "${ICU_INCLUDE_DIR}/unicode/ucsdet.h")
-    message(FATAL_ERROR "ICU include path not found. Set ICU_ROOT to the Conan package root that contains include/ and lib/.")
+    message(FATAL_ERROR "ICU include path not found. Set ICU_ROOT to the root that contains include/ and lib/.")
 endif()
 
 if(NOT ICU_LIB_DIR OR NOT EXISTS "${ICU_LIB_DIR}")
-    message(FATAL_ERROR "ICU lib path not found. Set ICU_ROOT to the Conan package root that contains include/ and lib/.")
+    message(FATAL_ERROR "ICU lib path not found. Set ICU_ROOT to the root that contains include/ and lib/.")
 endif()
 
-find_library(ICU_UC_LIBRARY NAMES icuuc HINTS "${ICU_LIB_DIR}")
-find_library(ICU_I18N_LIBRARY NAMES icui18n HINTS "${ICU_LIB_DIR}")
-find_library(ICU_DATA_LIBRARY NAMES icudata HINTS "${ICU_LIB_DIR}")
-find_library(ICU_IO_LIBRARY NAMES icuio HINTS "${ICU_LIB_DIR}")
+# find_library is platform-aware: finds .dylib on macOS, .so on Linux, .lib on Windows.
+# Include versioned names (e.g. icuuc76) that Conan may produce on Windows.
+find_library(ICU_UC_LIBRARY   NAMES icuuc   icuuc76   icuuc75   icuuc74   HINTS "${ICU_LIB_DIR}")
+find_library(ICU_I18N_LIBRARY NAMES icui18n icui18n76 icui18n75 icui18n74 HINTS "${ICU_LIB_DIR}")
+find_library(ICU_DATA_LIBRARY NAMES icudata icudata76 icudata75 icudata74 HINTS "${ICU_LIB_DIR}")
+find_library(ICU_IO_LIBRARY   NAMES icuio   icuio76   icuio75   icuio74   HINTS "${ICU_LIB_DIR}")
 
 if(NOT ICU_UC_LIBRARY OR NOT ICU_I18N_LIBRARY OR NOT ICU_DATA_LIBRARY OR NOT ICU_IO_LIBRARY)
     message(FATAL_ERROR "ICU libraries not found in ${ICU_LIB_DIR}. Ensure ICU_ROOT is correct.")
@@ -91,6 +117,11 @@ target_link_libraries(pensar_tests PRIVATE
     "${ICU_DATA_LIBRARY}"
     "${ICU_IO_LIBRARY}"
 )
+
+# Windows needs additional system libraries for networking and shell APIs
+if(WIN32)
+    target_link_libraries(pensar_tests PRIVATE ws2_32 iphlpapi shell32)
+endif()
 
 enable_testing()
 catch_discover_tests(pensar_tests)
@@ -124,6 +155,11 @@ target_link_libraries(contact_tests PRIVATE
     "${ICU_DATA_LIBRARY}"
     "${ICU_IO_LIBRARY}"
 )
+
+# Windows needs additional system libraries for networking and shell APIs
+if(WIN32)
+    target_link_libraries(contact_tests PRIVATE ws2_32 iphlpapi shell32)
+endif()
 
 catch_discover_tests(contact_tests)
 
