@@ -34,10 +34,7 @@
             "group": {
                 "kind": "build",
                 "isDefault": true
-            },
-            "dependsOn": [
-                "cmake-configure"
-            ]
+            }
         },
         {
             "label": "run-tests",
@@ -73,10 +70,7 @@
                     "$msCompile"
                 ]
             },
-            "group": "build",
-            "dependsOn": [
-                "cmake-configure"
-            ]
+            "group": "build"
         },
         {
             "label": "run-contact-tests",

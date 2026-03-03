@@ -10,9 +10,7 @@
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
-            "externalConsole": false,
             "MIMode": "lldb",
-            "preLaunchTask": "build-tests",
             "windows": {
                 "type": "cppvsdbg",
                 "program": "${workspaceFolder}/build/pensar_tests.exe",
@@ -28,9 +26,7 @@
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
-            "externalConsole": false,
             "MIMode": "lldb",
-            "preLaunchTask": "build-tests",
             "windows": {
                 "type": "cppvsdbg",
                 "program": "${workspaceFolder}/build/pensar_tests.exe",
@@ -46,9 +42,7 @@
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
-            "externalConsole": false,
             "MIMode": "lldb",
-            "preLaunchTask": "build-contact-tests",
             "windows": {
                 "type": "cppvsdbg",
                 "program": "${workspaceFolder}/build/contact_tests.exe",
@@ -64,9 +58,7 @@
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
-            "externalConsole": false,
             "MIMode": "lldb",
-            "preLaunchTask": "build-contact-tests",
             "windows": {
                 "type": "cppvsdbg",
                 "program": "${workspaceFolder}/build/contact_tests.exe",
