@@ -5,13 +5,14 @@
     "cmake.buildDirectory": "${workspaceFolder}/build",
     "cmake.configureOnOpen": true,
     "cmake.defaultVariants": {},
-    "cmake.launchBehavior": "newTerminal",
+    "cmake.launchBehavior": "reuseTerminal",
     "cmake.useCMakePresets": "always",
     "cmake.buildBeforeRun": true,
 
-    // --- CMake Tools: default launch target ---
-    "cmake.defaultBuildTarget": "contact_tests",
-    "cmake.defaultLaunchTarget": "contact_tests",
+    // --- CMake Tools: default launch/build targets ---
+    "cmake.defaultBuildTarget": "all",
+    "cmake.defaultLaunchTarget": "pensar_tests",
+    "cmake.buildArgs": ["--config", "Debug"],
 
     // --- C++ TestMate: discover Catch2 test executables ---
     "testMate.cpp.test.executables": "${workspaceFolder}/build/{pensar_tests,contact_tests}",

@@ -151,6 +151,18 @@ if(WIN32)
     target_link_libraries(pensar_tests PRIVATE ws2_32 iphlpapi shell32)
 endif()
 
+# ---------------------------------------------------------------------------
+# Copy ICU shared libraries to the build output directory so test executables
+# can find them at runtime without needing PATH modifications.
+# ---------------------------------------------------------------------------
+if(WIN32 AND icu_BIN_DIRS_RELEASE)
+    file(GLOB _icu_dlls "${icu_BIN_DIRS_RELEASE}/*.dll")
+    foreach(_dll ${_icu_dlls})
+        get_filename_component(_dll_name "${_dll}" NAME)
+        configure_file("${_dll}" "${CMAKE_BINARY_DIR}/${_dll_name}" COPYONLY)
+    endforeach()
+endif()
+
 enable_testing()
 catch_discover_tests(pensar_tests DL_PATHS "${icu_BIN_DIRS_RELEASE}")
 

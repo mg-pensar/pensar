@@ -2,7 +2,25 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Run tests",
+            "name": "Run pensar_tests",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/pensar_tests",
+            "args": ["--colour-mode", "ansi"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb",
+            "preLaunchTask": "build-tests",
+            "windows": {
+                "type": "cppvsdbg",
+                "program": "${workspaceFolder}/build/pensar_tests.exe",
+                "console": "integratedTerminal"
+            }
+        },
+        {
+            "name": "Debug pensar_tests",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/pensar_tests",
@@ -13,20 +31,47 @@
             "externalConsole": false,
             "MIMode": "lldb",
             "preLaunchTask": "build-tests",
-            "stopOnEntry": false
+            "windows": {
+                "type": "cppvsdbg",
+                "program": "${workspaceFolder}/build/pensar_tests.exe",
+                "console": "integratedTerminal"
+            }
         },
         {
-            "name": "Debug tests",
+            "name": "Run contact_tests",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/pensar_tests",
+            "program": "${workspaceFolder}/build/contact_tests",
+            "args": ["--colour-mode", "ansi"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb",
+            "preLaunchTask": "build-contact-tests",
+            "windows": {
+                "type": "cppvsdbg",
+                "program": "${workspaceFolder}/build/contact_tests.exe",
+                "console": "integratedTerminal"
+            }
+        },
+        {
+            "name": "Debug contact_tests",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/contact_tests",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": false,
             "MIMode": "lldb",
-            "preLaunchTask": "build-tests"
+            "preLaunchTask": "build-contact-tests",
+            "windows": {
+                "type": "cppvsdbg",
+                "program": "${workspaceFolder}/build/contact_tests.exe",
+                "console": "integratedTerminal"
+            }
         }
     ]
 }
