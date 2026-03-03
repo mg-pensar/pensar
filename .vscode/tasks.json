@@ -5,12 +5,16 @@
             "label": "cmake-configure",
             "type": "shell",
             "command": "cmake -S ${workspaceFolder} -B ${workspaceFolder}/build",
+            "windows": {
+                "command": "cmake -S ${workspaceFolder} -B ${workspaceFolder}/build -DCMAKE_TOOLCHAIN_FILE=${workspaceFolder}/conan_toolchain.cmake"
+            },
             "options": {
                 "cwd": "${workspaceFolder}"
             },
-            "problemMatcher": [
-                "$gcc"
-            ]
+            "problemMatcher": {
+                "base": "$gcc",
+                "owner": "cmake"
+            }
         },
         {
             "label": "build-tests",
@@ -22,6 +26,11 @@
             "problemMatcher": [
                 "$gcc"
             ],
+            "windows": {
+                "problemMatcher": [
+                    "$msCompile"
+                ]
+            },
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -34,6 +43,9 @@
             "label": "run-tests",
             "type": "shell",
             "command": "cd ${workspaceFolder}/build && ctest --output-on-failure -j$(sysctl -n hw.logicalcpu)",
+            "windows": {
+                "command": "cd ${workspaceFolder}/build ; ctest --output-on-failure -j $env:NUMBER_OF_PROCESSORS"
+            },
             "problemMatcher": [],
             "group": {
                 "kind": "test",
@@ -53,6 +65,11 @@
             "problemMatcher": [
                 "$gcc"
             ],
+            "windows": {
+                "problemMatcher": [
+                    "$msCompile"
+                ]
+            },
             "group": "build",
             "dependsOn": [
                 "cmake-configure"
@@ -62,6 +79,9 @@
             "label": "run-contact-tests",
             "type": "shell",
             "command": "${workspaceFolder}/build/contact_tests --colour-mode ansi",
+            "windows": {
+                "command": "${workspaceFolder}\\build\\contact_tests.exe --colour-mode ansi"
+            },
             "problemMatcher": [],
             "group": "test",
             "dependsOn": [

@@ -345,6 +345,7 @@ namespace pensar_digital
         {
             HANDLE hFile;
 #ifdef WIDE_CHAR
+			// todo: convert file_name to LPCSTR.(const char*)
             hFile = CreateFile(file_name.c_str(),    // file to open
                 GENERIC_READ,          // open for reading
                 FILE_SHARE_READ,       // share for reading
@@ -353,7 +354,7 @@ namespace pensar_digital
                 FILE_ATTRIBUTE_NORMAL, // normal file
                 NULL);                 // no attr. template
 #else
-            hFile = CreateFile(to_wstring(file_name).c_str(),    // file to open
+            hFile = CreateFile(file_name.c_str(),    // file to open
                 GENERIC_READ,          // open for reading
                 FILE_SHARE_READ,       // share for reading
                 NULL,                  // default security

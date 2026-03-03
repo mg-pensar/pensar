@@ -23,12 +23,10 @@ namespace pensar_digital
         public:
           using result_type = T;
           
-          #undef min  // Undefine the macro min defined in windows.h to avoid conflict with the member function min.
+          CustomRandomGenerator(result_type seed) : m_engine(seed), m_dist((std::numeric_limits<result_type>::min)(), (std::numeric_limits<result_type>::max)()) {}
 
-          CustomRandomGenerator(result_type seed) : m_engine(seed), m_dist(std::numeric_limits<result_type>::min(), std::numeric_limits<result_type>::max()) {}
-
-          static constexpr result_type min() { return std::numeric_limits<result_type>::min(); }
-          static constexpr result_type max() { return std::numeric_limits<result_type>::max(); }
+          static constexpr result_type (min)() { return (std::numeric_limits<result_type>::min)(); }
+          static constexpr result_type (max)() { return (std::numeric_limits<result_type>::max)(); }
 
           result_type operator()() {
               return m_dist(m_engine);

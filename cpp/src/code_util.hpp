@@ -45,11 +45,16 @@ namespace pensar_digital
 			Result(const ErrorMessageType& error_message) : merror_message(error_message), mok(Bool::F) {}
 			Result(const C* error_message) : merror_message(CS<0, 256>(error_message)), mok(Bool::F) {}
 
-            // Implicit conversion to bool
+            // Implicit conversion to Bool
             operator Bool() const { return mok; }
+			
+			// Explicit conversion to native bool for boolean contexts (if/while, etc.)
+			explicit operator bool() const noexcept { return mok == Bool{ Bool::T }; }
 
-            // Implicit conversion to ResultType
-            operator T() const { return mresult; }
+			// Implicit conversion to ResultType. SFINAE out when U is native bool or Bool to avoid redefinition.
+			template <typename U = T, typename std::enable_if<
+				!std::is_same<U, bool>::value && !std::is_same<U, Bool>::value, int>::type = 0>
+			operator T() const noexcept { return mresult; }
 
             // Implicit conversion to ErrorMessageType
 			operator ErrorMessageType() const { return merror_message; }

@@ -6,15 +6,8 @@
     "cmake.configureOnOpen": true,
     "cmake.defaultVariants": {},
     "cmake.launchBehavior": "newTerminal",
-    "cmake.debugConfig": {
-        "type": "cppdbg",
-        "request": "launch",
-        "program": "${command:cmake.launchTargetPath}",
-        "args": [],
-        "cwd": "${workspaceFolder}",
-        "MIMode": "lldb",
-        "stopOnEntry": false
-    },
+    "cmake.useCMakePresets": "always",
+    "cmake.buildBeforeRun": true,
 
     // --- CMake Tools: default launch target ---
     "cmake.defaultBuildTarget": "contact_tests",
@@ -22,5 +15,6 @@
 
     // --- C++ TestMate: discover Catch2 test executables ---
     "testMate.cpp.test.executables": "${workspaceFolder}/build/{pensar_tests,contact_tests}",
-    "testMate.cpp.test.workingDirectory": "${workspaceFolder}"
+    "testMate.cpp.test.workingDirectory": "${workspaceFolder}",
+    "rust-analyzer.workspace.discoverConfig": null
 }

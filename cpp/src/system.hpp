@@ -13,6 +13,21 @@
     #include <TargetConditionals.h>
 #endif
 
+// ---------------------------------------------------------------------------
+// Windows SDK headers MUST be included at global scope, before any namespace.
+// system_windows.hpp is later #include'd inside namespace pensar_digital::cpplib
+// via the INCLUDE(system) macro.  Without these pre-includes the SDK types
+// (DWORD, HWND, HINSTANCE …) would end up scoped inside the namespace, and
+// every subsequent SDK header (<shlobj.h>, <commctrl.h>, …) would fail to
+// find them.  The include-guards inside the SDK headers make these harmless
+// no-ops when system_windows.hpp re-includes them later.
+// ---------------------------------------------------------------------------
+#if defined(_WIN32) || defined(_WIN64)
+#include <winsock2.h>
+#include <iphlpapi.h>
+#include <windows.h>
+#endif
+
 #include <iostream>
 #include <type_traits>
 #include <string>

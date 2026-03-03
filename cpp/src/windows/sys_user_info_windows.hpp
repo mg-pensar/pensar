@@ -35,6 +35,12 @@ pensar_digital
                 }
             }
         }
+
+        /// Platform-agnostic entry point – delegates to the Windows implementation.
+        inline Path get_user_home()
+        {
+            return get_user_home_windows();
+        }
     } // namespace cpplib
 } // namespace pensar_digital
 

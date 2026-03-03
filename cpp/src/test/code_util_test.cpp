@@ -21,7 +21,7 @@ namespace pensar_digital::cpplib::code_util
         R r1 = f1();
         INFO("r1 must be false."); CHECK(!r1);
         INFO(W("0. r1.merror_message != err msg")); CHECK((r1.merror_message == R::ErrorMessageType(W("err msg"))));
-        INFO(W("1. r1.mok != Bool::F")); CHECK((Bool(r1) == Bool{Bool::F}));
+        INFO(W("1. r1.mok != Bool::F")); CHECK(((bool)r1 == false));
     }
 
     TEST_CASE("ResultSerialization", "[code_util]")

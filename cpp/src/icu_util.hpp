@@ -183,9 +183,9 @@ namespace pensar_digital
                 return result;
             }
 
-            #ifdef Windows
+            #ifdef WINDOWS
                 // Converts from std::wstring to std::string.
-                std::string to_string(const std::wstring& s)
+                inline std::string to_string(const std::wstring& s)
                 {
                     return utf16_to_utf8(s);
                 }

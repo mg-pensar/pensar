@@ -4,11 +4,11 @@
 #ifndef constantesHPP  
 #define constantesHPP  
   
-// Defines.  
-#define VISUAL_STUDIO  
-  
 //---------------------------------------------------------------------------  
-#define _WINSOCKAPI_  
+// Prevent <windows.h> from pulling in old <winsock.h> (conflicts with <winsock2.h>).
+#if defined(_WIN32) || defined(_WIN64)
+#define _WINSOCKAPI_
+#endif  
 #include <cstdint>  
 #include <vector>  
 #include <cstddef> // std::byte  

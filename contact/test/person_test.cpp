@@ -127,8 +127,8 @@ namespace pensar_digital::cpplib::contact
         p.set_email1(Email(W("user@example.com")));
         p.set_email2(Email(W("other@test.org")));
 
-        CHECK(S(p.phone1().mcountry_code) == W("55"));
-        CHECK(S(p.phone1().mareacode)     == W("11"));
+        CHECK(p.phone1().mcountry_code.str() == S(W("55")));
+        CHECK(p.phone1().mareacode.str()     == S(W("11")));
         CHECK(p.phone2().mareacode.str()     == S(W("21")));
         CHECK(p.email1().str() == S(W("user@example.com")));
         CHECK(p.email2().str() == S(W("other@test.org")));
