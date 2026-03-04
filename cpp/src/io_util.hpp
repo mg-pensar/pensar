@@ -12,7 +12,6 @@
 #include <vector>
 
 #include "multiplatform.hpp"
-#include "defines.hpp"
 #include "s.hpp"
 #include "memory.hpp"
 #include "constant.hpp"

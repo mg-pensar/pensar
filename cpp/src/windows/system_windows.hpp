@@ -9,7 +9,20 @@
 #include <intrin.h>
 #include <windows.h>
 
+#include "s.hpp"
+#include "mac_address.hpp"
+
 #pragma comment(lib, "IPHLPAPI.lib") // Link with Iphlpapi.lib
+
+inline static S os_name()
+{
+    return W("Windows");
+}
+
+inline static constexpr OS os()
+{
+        return OS::Windows;
+}
 
 // Specialization for Windows
 template<>

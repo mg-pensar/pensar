@@ -4,14 +4,6 @@
 #ifndef SYSTEM_HPP
 #define SYSTEM_HPP
 
-#include "multiplatform.hpp"
-#include "defines.hpp"
-#include "s.hpp"
-#include "mac_address.hpp"
-
-#ifdef __APPLE__
-    #include <TargetConditionals.h>
-#endif
 
 // ---------------------------------------------------------------------------
 // Windows SDK headers MUST be included at global scope, before any namespace.
@@ -36,56 +28,21 @@
 #include <array>
 #include <vector>
 
+// Include platform-specific implementation
+#include "multiplatform.hpp"
+#include INCLUDE(system)
+#include "string_def.hpp"
+#include "mac_address.hpp"
+#include "ostype.hpp"
+
+#ifdef __APPLE__
+    #include <TargetConditionals.h>
+#endif
+
 namespace pensar_digital
 {
 	namespace cpplib
-	{
-        static S os_name()
-        {
-            #if defined(_WIN32) || defined(_WIN64)
-                return W("Windows");
-            #elif defined(__APPLE__) && defined(TARGET_OS_IOS)
-                return W("iOS");
-            #elif defined(__ANDROID__)
-                return W("Android");
-            #elif defined(__linux__)
-                return W("Linux");
-            #elif defined(__APPLE__)
-                return W("macOS");
-            #else
-                return W("Other");
-            #endif
-        }
-
-        enum class OS
-        {
-            Windows,
-            Linux,
-            MacOS,
-            IOS,
-            Android,
-            Other
-        };
-
-        inline static constexpr OS os()
-        {
-            #if defined(_WIN32) || defined(_WIN64)
-                return OS::Windows;
-            #elif defined(__ANDROID__)
-                return OS::Android;
-            #elif defined(__APPLE__)
-                #if TARGET_OS_IOS
-                    return OS::IOS;
-                #else
-                    return OS::MacOS;
-                #endif
-            #elif defined(__linux__)
-                return OS::Linux;
-            #else
-                return OS::Other;
-            #endif
-        }
-
+	{        
         class BaseSystem
         {
             public:
@@ -105,32 +62,35 @@ namespace pensar_digital
                     return !name.empty() && name[0] != '.' && name.size() <= DEFAULT_MAX_NAME_LENGTH;
                 }
         };
-
-        template<OS OSTtype>
+       
         class System : public BaseSystem
         {
-            // Throws an exception if the operating system is not supported.
-            static_assert(OSTtype == OS::Windows || OSTtype == OS::Linux || OSTtype == OS::MacOS || OSTtype == OS::IOS || OSTtype == OS::Android, "Unsupported operating system.");            
-        };
+            public:
 
-        // Include platform-specific implementation
-        #include INCLUDE(system)
+                inline static const S LF = LINE_FEED;
+                inline static const size_t MAX_NAME_LENGTH = get_max_name_length();
+                inline static const size_t MAX_PATH        = get_max_path();
+                inline static const      C PATH_SEPARATOR  = path_separator();
+                inline static const S OS_NAME = os_name();
+                inline static const OSType OS = OS_TYPE;
+                inline static bool is_valid_file_name(const S& file_name)
+                {
+                    return is_name_valid_common(file_name) && file_name.find(path_separator()) == S::npos && file_name.find('\0') == S::npos;
+                }
 
-        using Sys = System<os()>;
-        inline const static S LF = Sys::LINE_FEED;
-        inline static bool is_valid_path(const S& path_name) { return Sys::is_valid_path(path_name); }
-        inline static bool is_valid_file_name(const S& file_name) { return Sys::is_valid_file_name(file_name); }
-        inline static std::vector<MacAddress> mac_addresses() { return Sys::mac_addresses(); }
-        inline static S cpu_id() { return Sys::cpu_id(); }
+                inline static bool is_valid_path(const S& path_name)
+                {
+                    return is_name_valid_common(path_name) && path_name.find(W('\0')) == S::npos;
+                }
 
-        // Gets file name from a path string.
-        inline static S file_name(const S& path_name)
-        {
-            size_t pos = path_name.find_last_of(Sys::path_separator());
-            if (pos == S::npos)
-                return path_name;
-            return path_name.substr(pos + 1);
-        }
-    } // namespace cpplib
+                inline static std::vector<MacAddress> mac_addresses();
+
+                inline static S cpu_id();
+        };  // class System
+
+        using Sys = System;
+        inline const static S LF = Sys::LF;
+
+     } // namespace cpplib
 } // namespace pensar_digital
 #endif	// SYSTEM_HPP

@@ -184,7 +184,7 @@ namespace pensar_digital
                 {
 
                     S s = str ();
-                    if (s.back() == Sys::path_separator ())
+                    if (s.back() == Sys::PATH_SEPARATOR)
                     {
 						s.pop_back();
 						*this = s;

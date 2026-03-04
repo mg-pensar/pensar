@@ -13,10 +13,23 @@
 #include <cstring>
 #include <cstdio>
 
+#include "s.hpp"
+#include "mac_address.hpp"
+#include "multiplatform.hpp"
+
 namespace pensar_digital
 {
     namespace cpplib
     {
+        static S os_name()
+        {
+           return W("Linux");
+        }
+        inline static constexpr OS os()
+        {
+                return OS::Linux;
+        }
+
         // Specialization for Linux
         template<>
         class System<OS::Linux> : public BaseSystem

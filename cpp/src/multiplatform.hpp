@@ -9,8 +9,8 @@
 namespace pensar_digital
 {
     namespace cpplib
-    {
-        // Helper macros for stringification (must be defined before use)
+    {       
+       // Helper macros for stringification (must be defined before use)
         #define _STRINGIFY_HELPER(x) #x
         #define _STRINGIFY(x) _STRINGIFY_HELPER(x)
 
