@@ -9,8 +9,9 @@
 #include <intrin.h>
 #include <windows.h>
 
-#include "s.hpp"
+#include "string_def.hpp"
 #include "mac_address.hpp"
+#include "ostype.hpp"
 
 #pragma comment(lib, "IPHLPAPI.lib") // Link with Iphlpapi.lib
 
@@ -18,6 +19,16 @@ inline static S os_name()
 {
     return W("Windows");
 }
+       inline static const OSType OS_TYPE = OSType::Windows;
+        
+        inline static const S LINE_FEED = W("\n");
+        inline static constexpr size_t get_max_name_length() noexcept { return 255; /* APFS */ }
+        inline static constexpr size_t get_max_path() noexcept
+        {
+            #define DEFAULT_MACOS_MAX_PATH 1024
+            return DEFAULT_MACOS_MAX_PATH;
+        }
+        inline static constexpr C path_separator() noexcept { return W('/'); }
 
 inline static constexpr OS os()
 {
