@@ -22,40 +22,13 @@ inline static S os_name()
        inline static const OSType OS_TYPE = OSType::Windows;
         
         inline static const S LINE_FEED = W("\n");
-        inline static constexpr size_t get_max_name_length() noexcept { return 255; /* APFS */ }
+        inline static constexpr size_t get_max_name_length() noexcept { return 255; /* NTFS */ }
         inline static constexpr size_t get_max_path() noexcept
         {
-            #define DEFAULT_MACOS_MAX_PATH 1024
-            return DEFAULT_MACOS_MAX_PATH;
+            #define DEFAULT_WINDOWS_MAX_PATH 1024
+            return DEFAULT_WINDOWS_MAX_PATH;
         }
-        inline static constexpr C path_separator() noexcept { return W('/'); }
-
-inline static constexpr OS os()
-{
-        return OS::Windows;
-}
-
-// Specialization for Windows
-template<>
-class System<OS::Windows> : public BaseSystem
-        {
-        public:
-            inline static const S LINE_FEED = W("\r\n");
-            inline static size_t get_max_name_length() noexcept { return 255; /* NTFS */ }
-            inline static size_t get_max_path() noexcept { return MAX_PATH; /* MAX_PATH */ }
-
-            inline static constexpr C path_separator() noexcept { return W('\\'); }
-
-            inline static bool is_valid_path(const S& path_name)
-            {
-                return is_name_valid_common(path_name) && path_name.find(W('\0')) == S::npos;
-            }
-
-            inline static bool is_valid_file_name(const S& file_name)
-            {
-                static const S invalidChars = W("<>:\"/\\|?*");
-                return is_name_valid_common(file_name) && file_name.find_first_of(invalidChars) == S::npos;
-            }
+        inline static constexpr C path_separator() noexcept { return W('\\'); }
 
             inline static std::vector<MacAddress> mac_addresses()
             {
