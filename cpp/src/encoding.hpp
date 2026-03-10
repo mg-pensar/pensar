@@ -33,7 +33,7 @@ namespace pensar_digital
 				: name(), bom(NO_BOM), endian(Endian::NOT_APPLICABLE), has_bom(Bool::F), bom_size(0)
 			{}
 
-			constexpr Encoding(const C* name_value,
+			Encoding(const C* name_value,
 				const BomBytes& bom_value,
 				Endian endian_value,
 				Bool has_bom_value,
