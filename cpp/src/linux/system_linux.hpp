@@ -5,6 +5,8 @@
 #define SYSTEM_LINUX_HPP
 
 #include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
 #include <sys/ioctl.h>
 #include <net/if.h>
 #include <linux/if.h>
@@ -64,7 +66,8 @@ namespace pensar_digital
                                 memcpy(mac_address, ifr.ifr_hwaddr.sa_data, 6);
 
                                 int64_t mac;
-                                sscanf((char*)mac_address, "%llx", &mac);
+                                std::memcpy(&mac, mac_address, 6);
+                                mac &= 0xFFFFFFFFFFFF; // mask to 6 bytes
                                 mac_addresses.push_back(MacAddress(mac));
                             }
                         }
@@ -92,6 +95,7 @@ namespace pensar_digital
                 }
                 return cpu_id;
             }
-        };
+    }       // namespace cpplib
+}           // namespace pensar_digital
 
 #endif // SYSTEM_LINUX_HPP

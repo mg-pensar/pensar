@@ -4,12 +4,6 @@
 #ifndef S_HPP
 #define S_HPP
 
-#include "constant.hpp"
-#include "string_def.hpp"
-
-#include "concept.hpp"
-
-#include "icu_util.hpp"
 
 
 #include <array>
@@ -22,6 +16,12 @@
 #include <cwctype>  // towlower, towupper
 
 //#include <unicode/unistr.h> // ICU library
+#include "constant.hpp"
+#include "string_def.hpp"
+
+#include "concept.hpp"
+
+#include "icu_util.hpp"
 
 namespace pensar_digital
 {
