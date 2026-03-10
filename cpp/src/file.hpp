@@ -16,6 +16,9 @@
 #include <cstring>
 #include <functional>
 
+#include "multiplatform.hpp"
+#include INCLUDE(file)
+
 #include "s.hpp"
 #include "object.hpp"
 #include "path.hpp"  
@@ -26,17 +29,6 @@
 #include "icu_util.hpp"
 #include "constant.hpp"
 #include "encoding.hpp"
-
-#ifdef _WIN32
-    #define STRERROR(buffer, buffer_size, error_code) strerror_s((buffer), (buffer_size), (error_code))
-#else
-    #define STRERROR(buffer, buffer_size, error_code) \
-        do { \
-            const char* _msg = strerror((error_code)); \
-            std::strncpy((buffer), _msg ? _msg : "", (buffer_size)); \
-            if ((buffer_size) > 0) (buffer)[(buffer_size) - 1] = 0; \
-        } while (0)
-#endif
 
 
 namespace pensar_digital
@@ -178,11 +170,8 @@ namespace pensar_digital
                 {
                     C msg[icu_util::BUFFER_SIZE];
                     static_assert(icu_util::BUFFER_SIZE > 0, "BUFFER_SIZE must be greater than zero.");
-                    STRERROR(msg, icu_util::BUFFER_SIZE, error);
+                    safe_strerror(msg, icu_util::BUFFER_SIZE, error);
 
-                    #ifdef WIDE_CHAR
-                        icu_util::utf8_char_ptr_to_wchar_t_ptr(msg, sys_err_msg);
-                    #endif  
                     // null terminates the string.
                     msg[icu_util::BUFFER_SIZE - 1] = 0;
 					return S(msg);
@@ -190,12 +179,7 @@ namespace pensar_digital
 
                 decltype(File::_file)& file_open (const Path& file_name, OpenMode mode)
                 {
-                    
-                    #ifdef WIDE_CHAR
-                        err = _wfopen_s(&_file, file_name.c_str(), mode.c_str());
-                    #else
-					    _file->open (_fullpath.str (), mode);
-                    #endif
+					_file->open (_fullpath.str (), mode);
 
                     if (_file->fail ())
                         log_and_throw(S(W("File::file_open(): Error: Could not open file ")));
