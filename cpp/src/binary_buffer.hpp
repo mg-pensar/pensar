@@ -8,10 +8,10 @@
 #include <cstring> // for std::memcpy
 #include <concepts>
 #include <type_traits>
-#include <expected>
 #include <iostream>
 #include <cstddef> // for std::byte
 #include <string_view>
+#include "code_util.hpp"
 
 namespace pensar_digital
 {
@@ -37,7 +37,7 @@ namespace pensar_digital
         // Class: BinaryBuffer
         // ---------------------------------------------------------------------------
         // A high-performance binary buffer that avoids std::iostream overhead.
-        // Uses C++23 features like 'deduced this' and 'std::expected'.
+        // Uses C++23 features like 'deduced this'.
         // ---------------------------------------------------------------------------
         class BinaryBuffer {
         private:
@@ -105,18 +105,18 @@ namespace pensar_digital
             }
 
             // Save entire buffer to disk (Binary Mode)
-            std::expected<void, std::string_view> save_to_file(std::string_view filename) const {
+            Result<Bool> save_to_file(std::string_view filename) const {
                 // "wb" is crucial for Windows to prevent newline translation
                 FILE* f = fopen(std::string(filename).c_str(), "wb");
-                if (!f) return std::unexpected("Failed to open file for writing");
+                if (!f) return Result<Bool>(W("Failed to open file for writing"));
 
                 size_t written = fwrite(buffer.data(), sizeof(std::byte), write_pos, f);
                 fclose(f);
 
                 if (written != write_pos) {
-                    return std::unexpected("Failed to write all bytes to disk");
+                    return Result<Bool>(W("Failed to write all bytes to disk"));
                 }
-                return {};
+                return Result<Bool>(Bool::T);
             }
 
             // ======================================================================
@@ -124,9 +124,9 @@ namespace pensar_digital
             // ======================================================================
 
             // Load entire file into buffer
-            std::expected<void, std::string_view> load_from_file(std::string_view filename) {
+            Result<Bool> load_from_file(std::string_view filename) {
                 FILE* f = fopen(std::string(filename).c_str(), "rb");
-                if (!f) return std::unexpected("Failed to open file for reading");
+                if (!f) return Result<Bool>(W("Failed to open file for reading"));
 
                 // Get file size
                 fseek(f, 0, SEEK_END);
@@ -135,7 +135,7 @@ namespace pensar_digital
 
                 if (file_size < 0) {
                     fclose(f);
-                    return std::unexpected("Could not determine file size");
+                    return Result<Bool>(W("Could not determine file size"));
                 }
 
                 // Resize buffer to fit file contents
@@ -146,13 +146,13 @@ namespace pensar_digital
                 fclose(f);
 
                 if (read_bytes != static_cast<size_t>(file_size)) {
-                    return std::unexpected("Read mismatch: read less bytes than expected");
+                    return Result<Bool>(W("Read mismatch: read less bytes than expected"));
                 }
 
                 // Reset positions
                 write_pos = static_cast<size_t>(file_size);
                 read_pos = 0;
-                return {};
+                return Result<Bool>(Bool::T);
             }
 
             // Core read: copies buffer bytes into the destination span

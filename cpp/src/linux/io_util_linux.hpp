@@ -4,7 +4,6 @@
 #ifndef io_utilH
 #define io_utilH
 
-#include "defines.hpp"
 #include "s.hpp"
 #include "memory.hpp"
 #include "constant.hpp"

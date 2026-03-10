@@ -134,12 +134,12 @@ namespace pensar_digital::cpplib
 
         auto save_result = bb.save_to_file(file.s());
         INFO(W("save_to_file failed"));
-        CHECK(save_result.has_value());
+        CHECK(bool(save_result));
 
         bb.clear();
         auto load_result = bb.load_from_file(file.s());
         INFO(W("load_from_file failed"));
-        CHECK(load_result.has_value());
+        CHECK(bool(load_result));
 
         {
             INFO(W("unexpected file size"));

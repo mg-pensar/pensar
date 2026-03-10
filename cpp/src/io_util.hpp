@@ -7,7 +7,6 @@
 #include <cstdio> // for FILE operations
 #include <cstring> // for std::memcpy
 #include <cstddef> // for std::byte
-#include <expected>
 #include <string_view>
 #include <vector>
 
@@ -42,27 +41,27 @@ namespace pensar_digital
 
 
         // Save entire buffer to disk (Binary Mode)
-        inline std::expected<void, std::string_view> save_to_file (std::string_view filename, const std::span<const std::byte> buffer, size_t offset = 0) 
+        inline Result<Bool> save_to_file (std::string_view filename, const std::span<const std::byte> buffer, size_t offset = 0) 
         {
             // "wb" is crucial for Windows to prevent newline translation
             FILE* f = fopen(std::string(filename).c_str(), "wb");
-            if (!f) return std::unexpected("Failed to open file for writing");
+            if (!f) return Result<Bool>(W("Failed to open file for writing"));
 
             size_t written = fwrite(buffer.data() + offset, sizeof(std::byte), buffer.size() - offset, f);
             fclose(f);
 
             if (written != buffer.size() - offset) 
             {
-                return std::unexpected("Failed to write all bytes to disk");
+                return Result<Bool>(W("Failed to write all bytes to disk"));
             }
-            return {};
+            return Result<Bool>(Bool::T);
         }
 
         // Load entire file into buffer
-        inline std::expected<std::vector<std::byte>, std::string_view> load_from_file(std::string_view filename) 
+        inline Result<Bool> load_from_file(std::string_view filename, std::vector<std::byte>& buffer) 
         {
             FILE* f = fopen(std::string(filename).c_str(), "rb");
-            if (!f) return std::unexpected("Failed to open file for reading");
+            if (!f) return Result<Bool>(W("Failed to open file for reading"));
 
             // Get file size
             fseek(f, 0, SEEK_END);
@@ -72,11 +71,11 @@ namespace pensar_digital
             if (file_size < 0) 
             {
                 fclose(f);
-                return std::unexpected("Could not determine file size");
+                return Result<Bool>(W("Could not determine file size"));
             }
 
             // Resize buffer to fit file contents
-            std::vector<std::byte> buffer(static_cast<size_t>(file_size));
+            buffer.resize(static_cast<size_t>(file_size));
 
             // Read bytes
             size_t read_bytes = fread(buffer.data(), sizeof(std::byte), static_cast<size_t>(file_size), f);
@@ -84,17 +83,17 @@ namespace pensar_digital
 
             if (read_bytes != static_cast<size_t>(file_size)) 
             {
-                return std::unexpected("Read mismatch: read less bytes than expected");
+                return Result<Bool>(W("Read mismatch: read less bytes than expected"));
             }
 
-            return buffer;
+            return Result<Bool>(Bool::T);
         }
 
         template<WritableByteSpanConvertible T>
-        inline std::expected<void, std::string_view> load_from_file(std::string_view filename, T& t) 
+        inline Result<Bool> load_from_file(std::string_view filename, T& t) 
         {
             FILE* f = fopen(std::string(filename).c_str(), "rb");
-            if (!f) return std::unexpected("Failed to open file for reading");
+            if (!f) return Result<Bool>(W("Failed to open file for reading"));
 
             // Get file size
             fseek(f, 0, SEEK_END);
@@ -104,14 +103,14 @@ namespace pensar_digital
             if (file_size < 0) 
             {
                 fclose(f);
-                return std::unexpected("Could not determine file size");
+                return Result<Bool>(W("Could not determine file size"));
             }
 
             auto out_span = t.wbytes()  ;
             if (out_span.size() < static_cast<size_t>(file_size)) 
             {
                 fclose(f);
-                return std::unexpected("Output span is too small to hold file contents");
+                return Result<Bool>(W("Output span is too small to hold file contents"));
             }
 
             // Read bytes
@@ -120,10 +119,10 @@ namespace pensar_digital
 
             if (read_bytes != static_cast<size_t>(file_size)) 
             {
-                return std::unexpected("Read mismatch: read less bytes than expected");
+                return Result<Bool>(W("Read mismatch: read less bytes than expected"));
             }
 
-            return {};
+            return Result<Bool>(Bool::T);
         }
 
 

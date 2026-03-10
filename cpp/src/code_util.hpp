@@ -85,8 +85,8 @@ namespace pensar_digital
 				return *this;
 			}
 
-			// = operator for Bool.
-			Result& operator=(const Bool& other)
+			// = operator for Bool (only when T is not Bool to avoid duplicate).
+			Result& operator=(const Bool& other) requires (!std::is_same_v<T, Bool>)
 			{
 				mok = other;
 				return *this;
