@@ -9,7 +9,7 @@
 #include <concepts>
 #include <type_traits>
 #include <expected>
-#include <print>
+#include <iostream>
 #include <cstddef> // for std::byte
 #include <string_view>
 
@@ -159,7 +159,7 @@ namespace pensar_digital
             auto read(this auto&& self, std::span<std::byte> dest) -> decltype(auto) {
                 // Check bounds
                 if (self.read_pos + dest.size() > self.buffer.size()) {
-                    std::println("Error: Buffer underflow while reading!");
+                    std::cerr << "Error: Buffer underflow while reading!" << std::endl;
                     return self;
                 }
 
