@@ -6,7 +6,7 @@
     "cmake.configureOnOpen": true,
     "cmake.defaultVariants": {},
     "cmake.launchBehavior": "reuseTerminal",
-    "cmake.useCMakePresets": "always",
+    "cmake.useCMakePresets": "auto",
     "cmake.buildBeforeRun": true,
 
     // --- CMake Tools: default launch/build targets ---

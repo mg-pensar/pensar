@@ -151,18 +151,18 @@ namespace pensar_digital
                 return MAX;
             }
 
-            void inline fill(C c) noexcept
+            inline constexpr void fill(C c) noexcept
             {
                 data.fill(c);
             }
 
-            void fill_null() noexcept
+            inline constexpr void fill_null() noexcept
             {
                 fill(NULL_CHAR);
             }
 
             // Default constructor
-            CS()
+            constexpr CS()
             {
                 fill_null();
             }

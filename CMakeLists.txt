@@ -67,8 +67,29 @@ endif()
 # ICU detection — use CMake's built-in FindICU module.
 # On Linux (libicu-dev) it is found automatically.
 # For Conan / custom installs pass -DICU_ROOT=/path/to/icu.
+# On macOS, Homebrew's icu4c is keg-only; auto-detect if ICU_ROOT is unset.
 # ---------------------------------------------------------------------------
 set(ICU_ROOT "" CACHE PATH "Path to ICU package root (contains include/ and lib/)")
+
+if(NOT ICU_ROOT)
+    if(APPLE)
+        find_program(_HOMEBREW brew)
+        if(_HOMEBREW)
+            execute_process(
+                COMMAND "${_HOMEBREW}" --prefix icu4c
+                OUTPUT_VARIABLE _BREW_ICU_PREFIX
+                OUTPUT_STRIP_TRAILING_WHITESPACE
+                ERROR_QUIET
+                RESULT_VARIABLE _BREW_RESULT
+            )
+            if(_BREW_RESULT EQUAL 0 AND EXISTS "${_BREW_ICU_PREFIX}")
+                set(ICU_ROOT "${_BREW_ICU_PREFIX}" CACHE PATH
+                    "Path to ICU (auto-detected from Homebrew)" FORCE)
+                message(STATUS "ICU auto-detected via Homebrew: ${ICU_ROOT}")
+            endif()
+        endif()
+    endif()
+endif()
 
 find_package(ICU REQUIRED COMPONENTS uc i18n data io)
 
@@ -164,7 +185,7 @@ if(WIN32 AND icu_BIN_DIRS_RELEASE)
 endif()
 
 enable_testing()
-catch_discover_tests(pensar_tests DL_PATHS "${icu_BIN_DIRS_RELEASE}")
+catch_discover_tests(pensar_tests TEST_PREFIX "pensar::" DL_PATHS "${icu_BIN_DIRS_RELEASE}")
 
 # ---------------------------------------------------------------------------
 # contact_tests — tests for the contact module (person, email, phone)
@@ -200,7 +221,7 @@ if(WIN32)
     target_link_libraries(contact_tests PRIVATE ws2_32 iphlpapi shell32)
 endif()
 
-catch_discover_tests(contact_tests DL_PATHS "${icu_BIN_DIRS_RELEASE}")
+catch_discover_tests(contact_tests TEST_PREFIX "contact::" DL_PATHS "${icu_BIN_DIRS_RELEASE}")
 
 # ---------------------------------------------------------------------------
 # contact_db_tests — integration tests for SOCI / PostgreSQL data layer
@@ -235,7 +256,7 @@ if(SOCI_CORE_LIBRARY AND SOCI_POSTGRESQL_LIBRARY AND PQ_LIBRARY)
         BUILD_RPATH "${SOCI_ROOT}/lib;/opt/homebrew/lib/postgresql@18"
     )
 
-    catch_discover_tests(contact_db_tests)
+    catch_discover_tests(contact_db_tests TEST_PREFIX "contact_db::")
 else()
     message(STATUS "SOCI or libpq not found — skipping contact_db_tests target")
     if(NOT SOCI_CORE_LIBRARY)

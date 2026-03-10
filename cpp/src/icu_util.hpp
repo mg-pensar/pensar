@@ -30,6 +30,7 @@
 #include "string_def.hpp"
 #include "log.hpp"
 #include "encoding.hpp"
+#include "code_util.hpp"
 
 
 namespace pensar_digital

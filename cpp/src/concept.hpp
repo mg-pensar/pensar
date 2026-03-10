@@ -1,8 +1,6 @@
 #ifndef CONCEPT
 #define CONCEPT
 
-#include "constant.hpp"
-#include "factory.hpp" // for NewFactory
 
 #include <concepts>
 #include <iostream>
@@ -12,6 +10,8 @@
 #include <span>
 #include <cstddef> // for std::byte
 
+#include "constant.hpp"
+#include "factory.hpp" // for NewFactory
 
 
 namespace pensar_digital
