@@ -228,9 +228,16 @@ catch_discover_tests(contact_tests TEST_PREFIX "contact::" DL_PATHS "${icu_BIN_D
 # ---------------------------------------------------------------------------
 set(SOCI_ROOT "/opt/homebrew/opt/soci-pg" CACHE PATH "Path to SOCI install prefix")
 
-find_library(SOCI_CORE_LIBRARY       NAMES soci_core       HINTS "${SOCI_ROOT}/lib")
-find_library(SOCI_POSTGRESQL_LIBRARY NAMES soci_postgresql HINTS "${SOCI_ROOT}/lib")
-find_library(PQ_LIBRARY              NAMES pq              HINTS "/opt/homebrew/lib/postgresql@18")
+find_library(SOCI_CORE_LIBRARY       NAMES soci_core       HINTS "${SOCI_ROOT}/lib" "/usr/lib" "/usr/lib/x86_64-linux-gnu")
+find_library(SOCI_POSTGRESQL_LIBRARY NAMES soci_postgresql HINTS "${SOCI_ROOT}/lib" "/usr/lib" "/usr/lib/x86_64-linux-gnu")
+find_library(PQ_LIBRARY              NAMES pq              HINTS "/opt/homebrew/lib/postgresql@18" "/usr/lib" "/usr/lib/x86_64-linux-gnu")
+
+# Discover libpq include path via pkg-config (needed on Linux where
+# libpq-fe.h lives under /usr/include/postgresql).
+find_package(PkgConfig QUIET)
+if(PkgConfig_FOUND)
+    pkg_check_modules(LIBPQ QUIET libpq)
+endif()
 
 if(SOCI_CORE_LIBRARY AND SOCI_POSTGRESQL_LIBRARY AND PQ_LIBRARY)
     add_executable(contact_db_tests
@@ -242,6 +249,7 @@ if(SOCI_CORE_LIBRARY AND SOCI_POSTGRESQL_LIBRARY AND PQ_LIBRARY)
         "${CMAKE_CURRENT_SOURCE_DIR}/contact"
         "${SOCI_ROOT}/include"
         "/opt/homebrew/include/postgresql@18"
+        ${LIBPQ_INCLUDE_DIRS}
     )
 
     target_link_libraries(contact_db_tests PRIVATE
