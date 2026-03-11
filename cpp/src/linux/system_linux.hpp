@@ -14,6 +14,7 @@
 #include <sys/statvfs.h>
 #include <cstring>
 #include <cstdio>
+#include <fstream>
 #include <vector>
 
 #include "string_def.hpp"
