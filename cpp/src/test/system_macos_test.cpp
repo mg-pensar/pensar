@@ -1,6 +1,8 @@
 // author : Mauricio Gomes
 // license: MIT (https://opensource.org/licenses/MIT)
 
+#if defined(__APPLE__)
+
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
 
@@ -149,3 +151,5 @@ namespace pensar_digital::cpplib
     }
 
 } // namespace pensar_digital::cpplib
+
+#endif // __APPLE__
