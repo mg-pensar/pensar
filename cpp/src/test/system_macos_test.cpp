@@ -41,7 +41,7 @@ namespace pensar_digital::cpplib
 
     TEST_CASE("System max path is 1024", "[system][macos]")
     {
-        CHECK(Sys::MAX_PATH == 1024);
+        CHECK(Sys::MAX_PATH_LENGTH == 1024);
     }
 
     // ── Endianness ────────────────────────────────────────────────────
