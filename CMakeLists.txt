@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.28)
 
 # CMake 4.0+ changed cmake_parse_arguments() behaviour for empty keyword values.
 # Setting CMP0174 to NEW silences warnings from FetchContent on CMake >= 3.30.
@@ -16,6 +16,11 @@ endif()
 set(CMAKE_VS_GLOBALS "VcpkgEnabled=false")
 
 project(Pensar LANGUAGES CXX)
+
+# Enable C++20 module scanning when using a compatible generator (Ninja, VS 17.4+).
+if(CMAKE_GENERATOR MATCHES "Ninja|Visual Studio")
+  set(CMAKE_CXX_SCAN_FOR_MODULES ON)
+endif()
 
 Include(FetchContent)
 FetchContent_Declare(
