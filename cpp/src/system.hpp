@@ -69,7 +69,7 @@ namespace pensar_digital
 
                 inline static const S LF = LINE_FEED;
                 inline static const size_t MAX_NAME_LENGTH = get_max_name_length();
-                inline static const size_t MAX_PATH        = get_max_path();
+                inline static const size_t MAX_PATH_LENGTH = get_max_path();
                 inline static const      C PATH_SEPARATOR  = path_separator();
                 inline static const S OS_NAME = os_name();
                 inline static const OSType OS = OS_TYPE;
